@@ -1,0 +1,69 @@
+
+services:
+  buzzy_sso:
+    build: buzzy-sso/.
+    image: buzzy_sso
+    container_name: buzzy_sso_app
+    ports:
+      - "9000:9000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      SERVER_PORT: 9000
+      SPRING_DATASOURCE_URL: jdbc:postgresql://buzzy_sso_db:5432/buzzy_sso_db
+      ISSUER_URL: http://login.buzzy.io
+    depends_on:
+      - buzzy_sso_db
+    restart: on-failure
+  buzzy_sso_db:
+    image: postgres:15-alpine
+    container_name: buzzy_sso_app_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: buzzy_sso_db
+      POSTGRES_HOST_AUTH_METHOD: trust
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: on-failure
+
+  buzzy_conversation_api:
+    build: buzzy-conversation-api/.
+    image: buzzy_conversation_api
+    container_name: buzzy_conversation_api_app
+    ports:
+      - "8088:8088"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    environment:
+      SERVER_PORT: 8088
+      SPRING_DATASOURCE_URL: jdbc:postgresql://buzzy_conversation_api_db:5432/buzzy_conversation_db
+      ISSUER_URL: http://login.buzzy.io
+    depends_on:
+      - buzzy_sso
+      - buzzy_conversation_api_db
+    restart: on-failure
+  buzzy_conversation_api_db:
+    image: postgres:15-alpine
+    container_name: buzzy_conversation_api_db_app
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_DB: buzzy_conversation_db
+      POSTGRES_HOST_AUTH_METHOD: trust
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: on-failure
+
+  buzzy_webapp:
+    build: buzzy-webapp/.
+    image: buzzy_webapp
+    container_name: buzzy_webapp_app
+    ports:
+      - "3000:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - buzzy_sso
+      - buzzy_conversation_api
+    restart: on-failure
