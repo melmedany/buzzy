@@ -8,11 +8,10 @@ Buzzy is a modular and distributed chat system designed to provide scalable, sec
 
 
 
-The architecture of Buzzy revolves around four main modules:
+The architecture of Buzzy revolves around:
 
 - Centralized Authentication/Authorization Server
 - Chatting API
-- Common Library for Shared Models/Utils
 - Communication channel for streaming events within the system
 - Frontend Client to Access the System from Browser
 
@@ -33,7 +32,7 @@ Each module of this monorepo plays a crucial role in the overall functionality o
 
 ### Prerequisites
 
-* Basic dev environment with JDK installed (preferably latest versions)
+* Basic dev environment with JDK installed (preferably latest version)
 * Docker Compose
 * Make sure that ports `9000` `8088` `3000` `5432` and `15432` are not used, as they are needed for build and run. Alternatively, you can configure the desired ports to use on [docker-compose.yml](docker-compose.yml) for each service
 
