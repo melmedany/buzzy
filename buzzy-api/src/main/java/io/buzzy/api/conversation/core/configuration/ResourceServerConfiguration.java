@@ -1,4 +1,4 @@
-package io.buzzy.conversation_api.conversation.core.configuration;
+package io.buzzy.api.conversation.core.configuration;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

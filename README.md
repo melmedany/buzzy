@@ -18,13 +18,13 @@ The architecture of Buzzy revolves around:
 Each module of this monorepo plays a crucial role in the overall functionality of Buzzy:
 
 - **buzzy-sso** handles user registration, authentication and authorization centrally, ensuring secure access to the system.
-- **buzzy-conversation-api** provides the core chat functionalities, enabling users to send / receive messages, create and manage conversations.
+- **buzzy-api** provides the core chat functionalities, enabling users to send / receive messages, create and manage conversations.
 - **buzzy-webapp** offers a user-friendly interface through which users can interact with the chat system via web browsers.
 
 ## Contents of Repository
 
 - **/buzzy-sso**: Contains the authentication and authorization server.
-- **/buzzy-conversation-api**: Implements the chat functionality via API endpoints.
+- **/buzzy-api**: Implements the chat functionalities via API.
 - **/buzzy-common**: Shared library for utilities and shared models.
 - **/buzzy-webapp**: Frontend client for web-based access.
 
