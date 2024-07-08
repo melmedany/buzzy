@@ -16,29 +16,26 @@ defineEmits(['active-section-change']);
   <div>
     <!--form-->
     <div class="mb-5">
-      <TextInput label="Username" placeholder="Enter your username" class="mb-5"
+      <TextInput :label="$t('signup.username.label')"
+                 :placeholder="$t('signup.username.placeholder')" class="mb-5"
                  :value="props.signup?.username"
                  @value-changed="(value) => (props.signup.username = value)"/>
-      <TextInput label="First Name" placeholder="Enter your first name" class="mb-5"
+      <TextInput :label="$t('signup.firstname.label')"
+                 :placeholder="$t('signup.firstname.placeholder')" class="mb-5"
                  :value="props.signup?.firstname"
                  @value-changed="(value) => (props.signup.firstname = value)"/>
-      <TextInput label="Last Name" placeholder="Enter your last name" class="mb-5"
+      <TextInput :label="$t('signup.lastname.label')"
+                 :placeholder="$t('signup.lastname.placeholder')" class="mb-5"
                  :value="props.signup?.lastname"
                  @value-changed="(value) => (props.signup.lastname = value)"/>
     </div>
 
     <!--local controls-->
     <div class="mb-6">
-      <Button
-        class="w-full mb-4"
-        @click="
-          $emit('active-section-change', {
-            sectionName: 'password-section',
-            animationName: 'slide-left',
-          })
-        "
-        >Next</Button
-      >
+      <Button class="w-full mb-4"
+        @click="$emit('active-section-change', {sectionName: 'password-section',animationName: 'slide-left'})">
+        {{ $t("signup.next.button.label") }}
+      </Button>
     </div>
   </div>
 </template>

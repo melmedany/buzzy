@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import type { IAttachment, IConversation, IRecording } from "@src/types";
-import type { Ref } from "vue";
-import { computed, ref } from "vue";
+import type {IAttachment, IConversation, IRecording} from "@src/types";
+import {computed, onMounted, Ref, ref} from "vue";
 
 import useStore from "@src/store/store";
 import {
@@ -11,18 +10,16 @@ import {
   getName,
   hasAttachments,
   shorten,
+  timeAgo,
 } from "@src/utils";
 import router from "@src/router";
 
-import {
-  ArchiveBoxArrowDownIcon,
-  InformationCircleIcon,
-  MicrophoneIcon,
-  TrashIcon,
-} from "@heroicons/vue/24/outline";
+import {ArchiveBoxArrowDownIcon, InformationCircleIcon, MicrophoneIcon, TrashIcon,} from "@heroicons/vue/24/outline";
 import Typography from "@src/components/ui/data-display/Typography.vue";
 import Dropdown from "@src/components/ui/navigation/Dropdown/Dropdown.vue";
 import DropdownLink from "@src/components/ui/navigation/Dropdown/DropdownLink.vue";
+import defaultUserAvatar from "@src/assets/vectors/avatar-user-default.png"
+import defaultGroupAvatar from "@src/assets/vectors/avatar-group-default.png"
 
 const props = defineProps<{
   conversation: IConversation;
@@ -84,14 +81,17 @@ const handleRemoveUnread = () => {
 const isActive = computed(
   () => getActiveConversationId() === props.conversation.id
 );
+
+onMounted(async () => {
+
+});
 </script>
 
 <template>
   <div class="select-none">
     <button
-      :aria-label="'conversation with' + getName(props.conversation)"
-      tabindex="0"
-      v-click-outside="contextConfig"
+      :aria-label="$t('conversations.show-context-menu.button.aria-label') + getName(props.conversation)"
+      tabindex="0" v-click-outside="contextConfig"
       @contextmenu.prevent="handleShowContextMenu"
       @click="
         () => {
@@ -103,14 +103,19 @@ const isActive = computed(
       :class="{
         'md:bg-indigo-50': isActive,
         'md:dark:bg-gray-600': isActive,
-      }"
-    >
+      }">
       <!--profile image-->
-      <div class="mr-4">
-        <div
-          :style="{ backgroundImage: `url(${getAvatar(props.conversation)})` }"
-          class="w-7 h-7 rounded-full bg-cover bg-center"
-        ></div>
+      <div class="mr-4" v-if="getAvatar(props.conversation) !== undefined">
+        <div :style="{ backgroundImage: `url(${getAvatar(props.conversation)})` }"
+          class="w-10 rounded-full bg-cover bg-center"></div>
+      </div>
+      <div class="mr-4" v-else-if="['group', 'broadcast'].includes(conversation?.type)">
+        <img :src="defaultGroupAvatar" :alt="getName(conversation)"
+             class="w-8 rounded-full bg-cover bg-center"/>
+      </div>
+      <div class="mr-4" v-else>
+        <img :src="defaultUserAvatar" :alt="getName(conversation)"
+             class="w-8 rounded-full bg-cover bg-center"/>
       </div>
 
       <div class="w-full flex flex-col">
@@ -125,7 +130,7 @@ const isActive = computed(
 
             <!--last message date-->
             <Typography variant="body-1">
-              {{ lastMessage?.date }}
+              {{ timeAgo(lastMessage?.date) }}
             </Typography>
           </div>
         </div>
@@ -148,7 +153,7 @@ const isActive = computed(
             <!--recording name-->
             <Typography
               v-else-if="
-                lastMessage.type === 'recording' && lastMessage.content
+                lastMessage?.type === 'recording' && lastMessage?.content
               "
               variant="body-2"
               class="flex justify-start items-center"

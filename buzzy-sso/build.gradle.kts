@@ -5,6 +5,8 @@ dependencies {
     implementation("org.passay:passay:+")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:+")
 
+    implementation("org.springframework.kafka:spring-kafka:+")
+
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:+")
 
     implementation("io.jsonwebtoken:jjwt:+")
@@ -12,8 +14,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-authorization-server:+")
 
     implementation(project(":buzzy-common"))
+    implementation("org.mapstruct:mapstruct:+")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:+")
+    annotationProcessor("org.mapstruct:mapstruct-processor:+")
 
     runtimeOnly("org.postgresql:postgresql:+")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:+")

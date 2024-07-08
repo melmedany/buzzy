@@ -3,18 +3,23 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web:+")
     implementation("org.springframework.boot:spring-boot-starter-validation:+")
     implementation("jakarta.validation:jakarta.validation-api:+")
-    implementation("org.passay:passay:+")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:+")
 
+    implementation("org.springframework.kafka:spring-kafka:+")
+
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:+")
+    implementation("org.apache.commons:commons-text:+")
 
     implementation("io.jsonwebtoken:jjwt:+")
     implementation("org.springframework.boot:spring-boot-starter-security:+")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server:+")
 
     implementation(project(":buzzy-common"))
+    implementation("org.mapstruct:mapstruct:+")
+
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:+")
+    annotationProcessor("org.mapstruct:mapstruct-processor:+")
 
     runtimeOnly("org.postgresql:postgresql:+")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:+")

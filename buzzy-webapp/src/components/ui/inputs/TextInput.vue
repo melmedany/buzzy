@@ -13,6 +13,7 @@ const props = defineProps<{
   description?: string;
   variant?: string;
   class?: string;
+  disabled?: boolean;
 }>();
 
 const baseClasses = `max-w-full w-full h-8 p-4 rounded-sm content-center
@@ -39,8 +40,7 @@ const classes = twMerge(baseClasses, variantClasses.value, props.class);
     <div class="flex justify-start">
       <label v-if="props.label" :for="props.id" class="mb-3">
         <span
-          class="w-13 text-sm text-black opacity-60 dark:text-white dark:opacity-70 font-semibold leading-4 tracking-[.01rem]"
-        >
+          class="w-13 text-sm text-black opacity-60 dark:text-white dark:opacity-70 font-semibold leading-4 tracking-[.01rem]">
           {{ props.label }}
         </span>
       </label>
@@ -48,14 +48,13 @@ const classes = twMerge(baseClasses, variantClasses.value, props.class);
 
     <div class="relative">
       <input
-        @input="
-          $emit('valueChanged', ($event.target as HTMLInputElement).value)
-        "
+        @input="$emit('valueChanged', ($event.target as HTMLInputElement).value)"
         :type="props.type || 'text'"
         :id="props.id"
         :value="props.value"
         :class="classes"
         :placeholder="props.placeholder"
+        :disabled="props.disabled"
       />
 
       <div class="absolute top-0 right-0">

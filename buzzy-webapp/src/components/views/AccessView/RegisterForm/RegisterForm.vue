@@ -6,7 +6,11 @@ import SlideTransition from "@src/components/ui/transitions/SlideTransition.vue"
 import Typography from "@src/components/ui/data-display/Typography.vue";
 import PasswordSection from "@src/components/views/AccessView/RegisterForm/PasswordSection.vue";
 import PersonalSection from "@src/components/views/AccessView/RegisterForm/PersonalSection.vue";
-import APICalls from "@src/APICalls";
+import router from "@src/router";
+import authServerClient from "@src/clients/auth-server-client";
+import useStore from "@src/store/store";
+import {defaultSettings} from "@src/store/defaults";
+import {SignupForm} from "@src/types";
 
 defineEmits(["activeSectionChange"]);
 
@@ -34,54 +38,58 @@ const changeActiveSection = (event: {
   activeSectionName.value = event.sectionName;
 };
 
-const backend = new APICalls('http://login.buzzy.io');
-const signup = {username: "", firstname: "", lastname: "", password: "", confirmPassword: "", fullname: ""};
+const store = useStore();
+const preferredLanguage = store.settings.preferredLanguage || defaultSettings.preferredLanguage
+
+const signupForm: SignupForm = {
+  username: "",
+  firstname: "",
+  lastname: "",
+  password: "",
+  confirmPassword: ""
+}
 
 const handleSignUp = async () => {
-  try {
-    const headers = {
-      Authorization: 'Basic YnV6enktd2ViYXBwOmJ1enp5LXdlYmFwcC1zZWNyZXQ=',
-    };
-
-    // TODO // verify signup data
-    const responseData = await backend.postData("/v1/signup", headers, signup);
-    console.log('Response from post:', responseData);
-  } catch (error) {
-    console.error('Error posting data:', error);
-  }
+  authServerClient.signup(signupForm, preferredLanguage)
+      .then((response) => {
+        if (response?.errors) {
+          // todo handel error
+          console.log(response?.errors);
+        } else {
+          // todo // show signup success
+          router.push({path: "/access/sign-in/"})
+        }
+      });
 };
 </script>
 
 <template>
   <div
-    class="p-5 md:basis-1/2 xs:basis-full flex flex-col justify-center items-center">
+      class="p-5 md:basis-1/2 xs:basis-full flex flex-col justify-center items-center">
     <div class="w-full md:px-[26%] xs:px-[10%]">
       <!--header-->
       <div class="mb-6 flex flex-col">
         <img src="@src/assets/vectors/logo-gradient.svg"
-          class="w-[1.375rem] h-[1.125rem] mb-5 opacity-70"/>
-        <Typography variant="heading-2" class="mb-4">Get started with Avian</Typography>
+             class="w-[1.375rem] h-[1.125rem] mb-5 opacity-70"/>
+        <Typography variant="heading-2" class="mb-4">{{ $t("signup.opening.message") }}</Typography>
         <Typography variant="body-3" class="text-opacity-75 font-light">
-          Sign in to start using messaging!
+          {{ $t("signup.login.message") }}
         </Typography>
       </div>
 
       <!--form section-->
       <SlideTransition :animation="animation">
-        <component
-          @active-section-change="changeActiveSection"
-          :is="ActiveSection"
-          :signup="signup"
-          :handleSignUp="handleSignUp"
-        />
+        <component @active-section-change="changeActiveSection"
+                   :is="ActiveSection"
+                   :signup="signupForm"
+                   :handleSignUp="handleSignUp"/>
       </SlideTransition>
 
       <!--bottom text-->
       <div class="flex justify-center">
-        <Typography variant="body-2"
-          >Already have an account ?
+        <Typography variant="body-2">{{ $t("signup.already.have.account.message") }}
           <RouterLink to="/access/sign-in/" class="text-indigo-400 opacity-100">
-            Sign in
+            {{ $t("signup.login.button.label") }}
           </RouterLink>
         </Typography>
       </div>

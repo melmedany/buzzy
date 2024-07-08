@@ -13,8 +13,9 @@ import Button from "@src/components/ui/inputs/Button.vue";
 
 // Types
 interface AccountValues {
-  firstName: string | undefined;
-  lastName: string | undefined;
+  username: string | undefined;
+  firstname: string | undefined;
+  lastname: string | undefined;
   avatar: File | undefined;
 }
 
@@ -27,8 +28,9 @@ const props = defineProps<{
 const store = useStore();
 
 const accountValues: Ref<AccountValues> = ref({
-  firstName: store.user?.firstName,
-  lastName: store.user?.lastName,
+  username: store.user?.username,
+  firstname: store.user?.firstname,
+  lastname: store.user?.lastname,
   avatar: undefined,
 });
 
@@ -41,8 +43,9 @@ const handleSubmit = () => {
   store.$patch({
     user: {
       ...store.user,
-      firstName: accountValues.value.firstName,
-      lastName: accountValues.value.lastName,
+      username: accountValues.value.username,
+      firstname: accountValues.value.firstname,
+      lastname: accountValues.value.lastname,
     },
   });
 
@@ -60,34 +63,33 @@ const handleSubmit = () => {
     :collapsed="props.collapsed"
     chevron
     aria-controls="account-settings-collapse"
-    @click="handleToggle()"
-  >
-    <Typography variant="heading-2" class="mb-4"> Account </Typography>
-    <Typography variant="body-2"> Update your profile details</Typography>
+    @click="handleToggle()">
+    <Typography variant="heading-2" class="mb-4"> {{$t("account.settings.link.description")}} </Typography>
+    <Typography variant="body-2"> {{ $t("account.settings.link.description") }}</Typography>
   </AccordionButton>
 
   <Collapse id="account-settings-collapse" :collapsed="props.collapsed">
-    <TextInput
-      label="First name"
-      class="mb-7"
-      :value="accountValues?.firstName"
-      @value-changed="(value) => (accountValues.firstName = value)"
+    <TextInput :label="$t('account.settings.username.label')"
+               class="mb-7"
+               :value="accountValues?.username"
+               :disabled="true"
     />
-    <TextInput
-      label="Last name"
+    <TextInput :label="$t('account.settings.firstname.label')"
       class="mb-7"
-      :value="accountValues?.lastName"
-      @value-changed="(value) => (accountValues.lastName = value)"
+      :value="accountValues?.firstname"
+      @value-changed="(value) => (accountValues.firstname = value)"/>
+    <TextInput :label="$t('account.settings.lastname.label')"
+      class="mb-7"
+      :value="accountValues?.lastname"
+      @value-changed="(value) => (accountValues.lastname = value)"
     />
-    <DropFileUpload
-      label="Avatar"
-      class="mb-7"
-      accept="image/*"
+    <DropFileUpload :label="$t('account.settings.avatar.label')"
+      class="mb-7" accept="image/*"
       :value="accountValues.avatar"
       @value-changed="(value) => (accountValues.avatar = value)"
     />
     <Button class="w-full py-4" @click="handleSubmit" :loading="loading">
-      Save Settings
+      {{ $t("account.settings.save.button.label") }}
     </Button>
   </Collapse>
 </template>

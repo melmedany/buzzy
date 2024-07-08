@@ -11,12 +11,11 @@ Buzzy Conversation API enables users to send messages, create channels, and mana
 - Java
 - Spring
 - OAuth2
-- Web Sockets
 - Postgres
 
 ## Features
 
-- [ ] Start and manage chat with other users
-- [ ] Send and receive messages in real-time
-- [ ] Implement message encryption
-- [ ] Add support for multimedia messages
+- [x] Start and manage chat with other users
+- [x] Send messages
+- [ ] Message encryption
+- [ ] Support multimedia messages

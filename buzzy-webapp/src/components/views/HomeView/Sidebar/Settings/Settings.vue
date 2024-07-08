@@ -6,13 +6,10 @@ import SettingsAccordion from "@src/components/views/HomeView/Sidebar/Settings/S
 <template>
   <div>
     <SidebarHeader>
-      <template v-slot:title>Settings</template>
+      <template v-slot:title>{{ $t('side-bar.header.settings.title') }}</template>
     </SidebarHeader>
 
-    <div
-      class="w-full h-full scroll-smooth scrollbar-hidden"
-      style="overflow-x: visible; overflow-y: scroll"
-    >
+    <div class="w-full h-full scroll-smooth scrollbar-hidden" style="overflow-x: visible; overflow-y: scroll">
       <SettingsAccordion />
     </div>
   </div>

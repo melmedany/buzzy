@@ -57,7 +57,7 @@ public class TokenConfiguration {
             if (!StringUtils.hasText(userDetails.getUsername())) {
                 throw new IllegalStateException("Bad UserDetails, username is empty");
             }
-// TODO // fix refresh token
+
             context.getClaims().claim(CLAIMS_AUTHORITIES_KEY,
                             userDetails.getAuthorities().stream()
                                     .map(GrantedAuthority::getAuthority)

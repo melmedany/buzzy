@@ -1,9 +1,9 @@
 package io.buzzy.sso.registration.controller;
 
+import io.buzzy.common.service.ResourceBundleMessagesService;
 import io.buzzy.common.util.LocaleUtil;
 import io.buzzy.common.web.model.APIResponse;
 import io.buzzy.common.web.model.ApiError;
-import io.buzzy.sso.core.service.ResourceBundleMessagesService;
 import io.buzzy.sso.registration.service.exception.UsernameAlreadyExistsException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -33,17 +33,17 @@ public class RegistrationAPIExceptionHandler {
     }
 
     @ExceptionHandler({UsernameAlreadyExistsException.class})
-    public ResponseEntity<APIResponse> handleException(RuntimeException e, HttpServletRequest request) {
+    public ResponseEntity<APIResponse<Void>> handleException(RuntimeException e, HttpServletRequest request) {
         LOGGER.error("{}: ", e.getClass().getSimpleName());
         String errorMessage = messageSource.getMessage(e.getMessage(), LocaleUtil.getRequestLocale(request));
-        return new ResponseEntity<>(new APIResponse(null, List.of(new ApiError(null, errorMessage))), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new APIResponse<>(null, List.of(new ApiError(null, errorMessage))), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<APIResponse> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpServletRequest request) {
+    public ResponseEntity<APIResponse<Void>> handleMethodArgumentNotValid(MethodArgumentNotValidException e, HttpServletRequest request) {
         LOGGER.error("MethodArgumentNotValidException: ", e);
         List<ApiError> errors = fieldValidationError(e.getBindingResult(), LocaleUtil.getRequestLocale(request));
-        return new ResponseEntity<>(new APIResponse(null, errors), HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(new APIResponse<>(null, errors), HttpStatus.BAD_REQUEST);
     }
 
 

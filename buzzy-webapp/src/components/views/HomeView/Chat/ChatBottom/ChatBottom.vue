@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Ref } from "vue";
-import type { IConversation } from "@src/types";
+import type {Ref} from "vue";
+import {inject, onMounted, ref} from "vue";
+import type {IConversation} from "@src/types";
 
 import useStore from "@src/store/store";
-import { ref, inject, onMounted } from "vue";
-import { getConversationIndex } from "@src/utils";
+import {getConversationIndex} from "@src/utils";
 
 import {
   CheckIcon,
@@ -22,8 +22,11 @@ import ScaleTransition from "@src/components/ui/transitions/ScaleTransition.vue"
 import ReplyMessage from "@src/components/views/HomeView/Chat/ChatBottom/ReplyMessage.vue";
 import EmojiPicker from "@src/components/ui/inputs/EmojiPicker/EmojiPicker.vue";
 import Textarea from "@src/components/ui/inputs/Textarea.vue";
+import conversationsClient from "@src/clients/conversations-client";
+import {defaultSettings} from "@src/store/defaults";
 
 const store = useStore();
+const preferredLanguage = store.settings?.preferredLanguage || defaultSettings.preferredLanguage;
 
 const activeConversation = <IConversation>inject("activeConversation");
 
@@ -66,14 +69,51 @@ const handleClickOutside = (event: Event) => {
 
 // (event) set the draft message equals the content of the text area
 const handleSetDraft = () => {
-  const index = getConversationIndex(activeConversation.id);
+  const index = getConversationIndex(activeConversation?.id);
   if (index !== undefined) {
     store.conversations[index].draftMessage = value.value;
   }
 };
 
+const handleSendMessage = async () => {
+  const index = getConversationIndex(activeConversation?.id);
+  if (index !== undefined) {
+    const draftMessage = store.conversations[index].draftMessage
+
+    if (draftMessage && draftMessage.trim()) {
+      const message = { type: "text", message: draftMessage };
+      await conversationsClient.postMessage(store.tokens!!.accessToken, preferredLanguage, activeConversation.id, message);
+      await updateActiveConversation();
+      store.conversations[index].draftMessage = value.value = '';
+      handleSetDraft();
+    }
+  }
+}
+
+const updateActiveConversation = async () => {
+  if (store.tokens) {
+    const preferredLanguage = store.settings?.preferredLanguage || defaultSettings.preferredLanguage;
+
+    const response = await conversationsClient.getConversation(activeConversation?.id, store.tokens.accessToken, preferredLanguage);
+
+    if (response?.errors) {
+      // todo handel error
+      console.log(response?.errors);
+    } else {
+      let index = getConversationIndex(activeConversation?.id)
+
+      if (index !== undefined) {
+        store.conversations[index] = response?.data!!;
+        activeConversation.messages = response?.data!!.messages!!;
+      }
+    }
+  } else {
+    // todo // handel error
+  }
+
+}
 onMounted(() => {
-  value.value = activeConversation.draftMessage;
+  value.value = activeConversation?.draftMessage;
 });
 </script>
 
@@ -82,81 +122,52 @@ onMounted(() => {
     <!--selected reply display-->
     <div
       class="relative transition-all duration-200"
-      :class="{ 'pt-[3.75rem]': activeConversation?.replyMessage }"
-    >
+      :class="{ 'pt-[3.75rem]': activeConversation?.replyMessage }">
       <ReplyMessage />
     </div>
 
     <div
       class="h-auto min-h-[5.25rem] p-5 flex items-end"
       v-if="store.status !== 'loading'"
-      :class="recording ? ['justify-between'] : []"
-    >
+      :class="recording ? ['justify-between'] : []">
       <div class="min-h-[2.75rem]">
         <!--select attachments button-->
-        <IconButton
-          title="open select attachments modal"
-          aria-label="open select attachments modal"
+        <IconButton :title="$t('conversations.chat.open.attachments.modal.title')"
+          :aria-label="$t('conversations.chat.open.attachments.modal.aria-label')"
           @click="openAttachmentsModal = true"
           v-if="!recording"
-          class="group w-7 h-7 md:mr-5 xs:mr-4"
-        >
-          <PaperClipIcon
-            class="w-[1.25rem] h-[1.25rem] text-gray-400 group-hover:text-indigo-300"
-          />
+          class="group w-7 h-7 md:mr-5 xs:mr-4">
+          <PaperClipIcon class="w-[1.25rem] h-[1.25rem] text-gray-400 group-hover:text-indigo-300" />
         </IconButton>
 
         <!--recording timer-->
-        <Typography
-          v-if="recording"
-          variant="body-1"
-          no-color
-          class="text-indigo-300"
-          >00:11</Typography
-        >
+        <Typography v-if="recording" variant="body-1" no-color class="text-indigo-300">00:11</Typography>
       </div>
 
       <!--message textarea-->
       <div class="grow md:mr-5 xs:mr-4 self-end" v-if="!recording">
         <div class="relative">
-          <Textarea
-            v-model="value"
-            @input="handleSetDraft"
-            :value="value"
+          <Textarea v-model="value" @input="handleSetDraft" :value="value"
             class="max-h-[5rem] pr-[3.125rem] resize-none scrollbar-hidden"
-            auto-resize
-            cols="30"
-            rows="1"
-            placeholder="Write your message here"
-            aria-label="Write your message here"
-          />
+            auto-resize cols="30" rows="1"
+            :placeholder="$t('conversations.chat.textarea.title')"
+            :aria-label="$t('conversations.chat.textarea.aria-label')" />
 
           <!--emojis-->
           <div class="absolute bottom-[.8125rem] right-0">
             <!--emoji button-->
-            <IconButton
-              title="toggle emoji picker"
-              aria-label="toggle emoji picker"
+            <IconButton :title="$t('conversations.chat.emoji.picker.title')"
+              :aria-label="$t('conversations.chat.emoji.picker.aria-label')"
               @click="showPicker = !showPicker"
-              class="toggle-picker-button group w-7 h-7 md:mr-5 xs:mr-4"
-            >
-              <XCircleIcon
-                v-if="showPicker"
-                class="w-[1.25rem] h-[1.25rem] text-gray-400 group-hover:text-indigo-300"
-              />
-              <FaceSmileIcon
-                v-else
-                class="w-[1.25rem] h-[1.25rem] text-gray-400 group-hover:text-indigo-300"
-              />
+              class="toggle-picker-button group w-7 h-7 md:mr-5 xs:mr-4" >
+              <XCircleIcon v-if="showPicker" class="w-[1.25rem] h-[1.25rem] text-gray-400 group-hover:text-indigo-300" />
+              <FaceSmileIcon v-else class="w-[1.25rem] h-[1.25rem] text-gray-400 group-hover:text-indigo-300" />
             </IconButton>
 
             <!--emoji picker-->
             <ScaleTransition>
-              <div
-                v-click-outside="handleClickOutside"
-                v-show="showPicker"
-                class="absolute z-10 bottom-[3.4375rem] md:right-0 xs:right-[-5rem] mt-2"
-              >
+              <div v-click-outside="handleClickOutside" v-show="showPicker"
+                class="absolute z-10 bottom-[3.4375rem] md:right-0 xs:right-[-5rem] mt-2">
                 <div role="none">
                   <EmojiPicker :show="showPicker" />
                 </div>
@@ -175,56 +186,38 @@ onMounted(() => {
 
       <div class="min-h-[2.75rem] flex">
         <!--finish recording button-->
-        <IconButton
-          title="finish recording"
-          aria-label="finish recording"
+        <IconButton :title="$t('conversations.chat.finish.recording.title')"
+          :aria-label="$t('conversations.chat.finish.recording.aria-label')"
           v-if="recording"
           @click="handleToggleRecording"
-          class="relative group w-7 h-7 flex justify-center items-center outline-none rounded-full bg-indigo-300 hover:bg-green-300 dark:hover:bg-green-400 dark:focus:bg-green-400 focus:outline-none transition-all duration-200"
-        >
-          <span
-            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-300 group-hover:bg-green-300 opacity-40"
-          >
-          </span>
+          class="relative group w-7 h-7 flex justify-center items-center outline-none rounded-full bg-indigo-300 hover:bg-green-300 dark:hover:bg-green-400 dark:focus:bg-green-400 focus:outline-none transition-all duration-200">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-300 group-hover:bg-green-300 opacity-40" />
 
-          <MicrophoneIcon
-            class="w-[1.25rem] h-[1.25rem] text-white group-hover:hidden"
-          />
-          <CheckIcon
-            class="w-[1.25rem] h-[1.25rem] hidden text-white group-hover:block"
-          />
+          <MicrophoneIcon class="w-[1.25rem] h-[1.25rem] text-white group-hover:hidden" />
+          <CheckIcon class="w-[1.25rem] h-[1.25rem] hidden text-white group-hover:block" />
         </IconButton>
 
         <!--start recording button-->
-        <IconButton
-          v-else
-          @click="handleToggleRecording"
-          title="start recording"
-          aria-label="start recording"
-          class="group w-7 h-7 md:mr-5 xs:mr-4"
-        >
-          <MicrophoneIcon
-            class="w-[1.25rem] h-[1.25rem] text-gray-400 group-hover:text-indigo-300"
-          />
+        <IconButton v-else @click="handleToggleRecording"
+          :title="$t('conversations.chat.start.recording.title')"
+          :aria-label="$t('conversations.chat.start.recording.aria-label')"
+          class="group w-7 h-7 md:mr-5 xs:mr-4" >
+          <MicrophoneIcon class="w-[1.25rem] h-[1.25rem] text-gray-400 group-hover:text-indigo-300" />
         </IconButton>
 
         <!--send message button-->
-        <IconButton
-          v-if="!recording"
+        <IconButton v-if="!recording"
+          @click="handleSendMessage"
           class="group w-7 h-7 bg-indigo-300 hover:bg-indigo-400 focus:bg-indigo-400 dark:focus:bg-indigo-300 dark:bg-indigo-400 dark:hover:bg-indigo-400 active:scale-110"
           variant="ghost"
-          title="send message"
-          aria-label="send message"
-        >
+          :title="$t('conversations.chat.send.message.title')"
+          :aria-label="$t('conversations.chat.send.message.aria-label')" >
           <PaperAirplaneIcon class="w-[1.0625rem] h-[1.0625rem] text-white" />
         </IconButton>
       </div>
     </div>
 
-    <AttachmentsModal
-      :open="openAttachmentsModal"
-      :close-modal="() => (openAttachmentsModal = false)"
-    />
+    <AttachmentsModal :open="openAttachmentsModal" :close-modal="() => (openAttachmentsModal = false)" />
   </div>
 </template>
 

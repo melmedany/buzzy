@@ -16,10 +16,10 @@ const props = defineProps<{
 
 const openCarousel: Ref<boolean> = ref(false);
 
-const selectedAttachmentId: Ref<number | undefined> = ref();
+const selectedAttachmentId: Ref<string | undefined> = ref();
 
 // open the carousel with the selected index
-const openCarouselWithAttachment = (attachmentId: number) => {
+const openCarouselWithAttachment = (attachmentId: string) => {
   selectedAttachmentId.value = attachmentId;
   openCarousel.value = true;
 };
@@ -262,7 +262,7 @@ const isNumber = (
       <!--carousel modal-->
       <Carousel
         :open="openCarousel"
-        :starting-id="(selectedAttachmentId as number)"
+        :starting-id="selectedAttachmentId"
         :close-carousel="closeCarousel"
       />
     </div>

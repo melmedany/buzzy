@@ -23,8 +23,8 @@ const props = defineProps<{
   top: number;
   selected: boolean;
   handleCloseContextMenu: () => void;
-  handleSelectMessage: (messageId: number) => void;
-  handleDeselectMessage: (messageId: number) => void;
+  handleSelectMessage: (messageId: string) => void;
+  handleDeselectMessage: (messageId: string) => void;
 }>();
 
 const store = useStore();

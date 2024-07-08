@@ -52,4 +52,13 @@
     width: 0rem;
     height: 0rem;
   }
+
+  input:disabled {
+    background-color: #e9ecef;
+    opacity: 1;
+  }
+
+  input:disabled, input:is(.dark) {
+    color: #6b7280 !important;
+  }
 }

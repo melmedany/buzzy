@@ -1,34 +1,12 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import {onBeforeMount, onMounted, onUnmounted, ref} from "vue";
 
 import useStore from "@src/store/store";
-import { fetchData } from "@src/store/defaults";
+import moment from 'moment'
 
 import FadeTransition from "@src/components/ui/transitions/FadeTransition.vue";
-
-// Refactoring code:
-// todo reorganize component structure
-// todo rerfactor make everything that can be a ui component into one.
-// todo refactor remove getters from utils file and add them to store folder.
-// todo improve the video component.
-
-// future features:
-// todo add video calling
-// todo add stories
-
-// Accessability:
-// todo improve the way you view messages.
-// todo make multi-select more accessible.
-// todo make dropdown menus more accessible.
-// todo make modals more accessible.
-// todo make lists (i.e conversations, contacts, calls) more accessible.
-
-// SEO.
-// todo improve seo.
-
-// Performance:
-// todo add dynamic imports.
-// todo add chunking.
+import {setLocale} from "@src/utils";
+import {connectToSocketSever} from "@src/app";
 
 const store = useStore();
 
@@ -37,23 +15,17 @@ store.$subscribe((_mutation, state) => {
   localStorage.setItem("chat", JSON.stringify(state));
 });
 
+onBeforeMount(async () => {
+  setLocale(store.settings!!.preferredLanguage)
+  moment.locale(store.settings!!.preferredLanguage)
+})
+
 // here we load the data from the server.
 onMounted(async () => {
   store.status = "loading";
-
-  // fake server call
-  setTimeout(() => {
-    store.delayLoading = false;
-  });
-  const request = await fetchData();
-
-  store.$patch({
-    status: "success",
-    user: store.user,
-    conversations: request.data.conversations,
-    notifications: request.data.notifications,
-    archivedConversations: request.data.archivedConversations,
-  });
+  if (store.tokens) {
+    connectToSocketSever();
+  }
 });
 
 // the app height

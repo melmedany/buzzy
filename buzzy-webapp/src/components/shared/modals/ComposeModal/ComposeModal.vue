@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import type { Ref } from "vue";
-import { computed, ref } from "vue";
+import type {Ref} from "vue";
+import {computed, ref} from "vue";
 
 import Contacts from "@src/components/shared/modals/ComposeModal/Contacts.vue";
 import Group from "@src/components/shared/modals/ComposeModal/Group.vue";
@@ -8,10 +8,13 @@ import Typography from "@src/components/ui/data-display/Typography.vue";
 import Button from "@src/components/ui/inputs/Button.vue";
 import FadeTransition from "@src/components/ui/transitions/FadeTransition.vue";
 import Modal from "@src/components/ui/utils/Modal.vue";
+import {IContact} from "@src/types";
 
 const props = defineProps<{
   open: boolean;
   closeModal: () => void;
+  searchKeywordChanged: (keyword: string) => any;
+  contactSelected: (contact: IContact) => any;
 }>();
 
 // the p element containing the modal title
@@ -46,64 +49,53 @@ const activeTab = computed(() => {
             variant="heading-1"
             ref="modalTitle"
             class="default-outline"
-            tabindex="0"
-          >
+            tabindex="0">
             Compose
           </Typography>
 
-          <Button
-            @click="props.closeModal"
+          <Button @click="props.closeModal"
             variant="outlined"
             color="danger"
-            typography="body-4"
-          >
+            typography="body-4" >
             esc
           </Button>
         </div>
 
         <!--tabs-->
         <div class="px-5 pb-5">
-          <div
-            class="flex items-center p-2 bg-gray-50 rounded-sm dark:bg-gray-700"
-          >
+          <div class="flex items-center p-2 bg-gray-50 rounded-sm dark:bg-gray-700">
             <button
               @click="switchTab('contacts')"
               class="basis-1/2 p-4 rounded-sm text-md outline-none leading-4 tracking-[.01rem] transition-all duration-200 focus:outline-none mr-1"
-              :class="
-                activeTabName === 'contacts'
+              :class="activeTabName === 'contacts'
                   ? ['bg-indigo-400', 'text-white']
                   : [
                       'text-black',
                       'opacity-60',
                       'dark:text-white',
                       'dark:opacity-70',
-                    ]
-              "
-            >
-              Contact
+                    ]">
+              {{ $t('compose.modal.tabs.contact.title') }}
             </button>
-            <button
-              @click="switchTab('group')"
+            <button @click="switchTab('group')"
               class="basis-1/2 p-4 rounded-sm text-md leading-4 tracking-[.01rem] transition-all duration-200 outline-none focus:outline-none"
-              :class="
-                activeTabName === 'group'
+              :class="activeTabName === 'group'
                   ? ['bg-indigo-400', 'text-white']
                   : [
                       'text-black',
                       'opacity-60',
                       'dark:text-white',
                       'dark:opacity-70',
-                    ]
-              "
-            >
-              Group
+                    ]">
+              {{ $t('compose.modal.tabs.group.title') }}
             </button>
           </div>
         </div>
 
         <!--ActiveTab-->
         <FadeTransition>
-          <component :is="activeTab" />
+          <component :is="activeTab" :search-keyword-changed="(value) => searchKeywordChanged(value)"
+                     :contact-selected="(value) => contactSelected(value)"/>
         </FadeTransition>
       </div>
     </template>

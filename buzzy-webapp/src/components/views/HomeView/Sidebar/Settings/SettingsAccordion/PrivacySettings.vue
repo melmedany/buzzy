@@ -5,6 +5,8 @@ import AccordionButton from "@src/components/ui/data-display/AccordionButton.vue
 import Typography from "@src/components/ui/data-display/Typography.vue";
 import Collapse from "@src/components/ui/utils/Collapse.vue";
 import SettingsSwitch from "@src/components/views/HomeView/Sidebar/Settings/SettingsAccordion/SettingsSwitch.vue";
+import userProfileClient from "@src/clients/user-profile-client";
+import {defaultSettings} from "@src/store/defaults";
 
 // Variables
 const props = defineProps<{
@@ -13,6 +15,23 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
+const preferredLanguage = store.settings.preferredLanguage || defaultSettings.preferredLanguage
+const lastSeen = () => {
+  store.settings.lastSeen = !store.settings.lastSeen
+  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+}
+const readReceipt = () => {
+  store.settings.readReceipt = !store.settings.readReceipt
+  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+}
+const joiningGroups = () => {
+  store.settings.joiningGroups = !store.settings.joiningGroups
+  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+}
+const privateMessages = () => {
+  store.settings.privateMessages = !store.settings.privateMessages
+  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+}
 </script>
 
 <template>
@@ -23,46 +42,41 @@ const store = useStore();
     :collapsed="props.collapsed"
     chevron
     aria-controls="privacy-settings-collapse"
-    @click="props.handleToggle()"
-  >
-    <Typography variant="heading-2" class="mb-4"> Privacy & Safety </Typography>
-    <Typography variant="body-2"> Control your privacy settings</Typography>
+    @click="props.handleToggle()">
+    <Typography variant="heading-2" class="mb-4"> {{ $t('privacy.settings.link.title') }} </Typography>
+    <Typography variant="body-2"> {{ $t('privacy.settings.link.description') }}</Typography>
   </AccordionButton>
 
   <Collapse id="privacy-settings-collapse" :collapsed="props.collapsed">
-    <SettingsSwitch
-      title="Show Last Seen"
-      description="Allow people to see your last login"
-      :value="!!store.settings.lastSeen"
+    <SettingsSwitch :title="$t('privacy.settings.last-seen.title')"
+      :description="$t('privacy.settings.last-seen.description')"
+      :id="'privacy-settings-allow-last-seen'" @click="lastSeen"
+      :value="store.settings.lastSeen"
       :handle-toggle-switch="(value:boolean) => (store.settings.lastSeen = value)"
-      class="mb-7"
-    />
-    <SettingsSwitch
-      title="Show Read Receipt"
-      description="Allow people to see whether or not you've read the message"
-      :value="!!store.settings.readReceipt"
+      class="mb-7"/>
+    <SettingsSwitch :title="$t('privacy.settings.show-read-receipt.title')"
+      :description="$t('privacy.settings.show-read-receipt.description')"
+      :id="'privacy-settings-show-read-receipt'" @click="readReceipt"
+      :value="store.settings.readReceipt"
       :handle-toggle-switch="
         (value:boolean) => (store.settings.readReceipt = value)
       "
-      class="mb-7"
-    />
-    <SettingsSwitch
-      title="Joining Groups"
-      description="Allow people to add you to groups"
-      :value="!!store.settings.joiningGroups"
+      class="mb-7"/>
+    <SettingsSwitch :title="$t('privacy.settings.joining-groups.title')"
+      :description="$t('privacy.settings.joining-groups.description')"
+      :id="'privacy-settings-joining-groups'" @click="joiningGroups"
+      :value="store.settings.joiningGroups"
       :handle-toggle-switch="
         (value:boolean) => (store.settings.joiningGroups = value)
       "
-      class="mb-7"
-    />
-    <SettingsSwitch
-      title="Private Messages"
-      description="Receive messages from non-contacts"
-      :value="!!store.settings.privateMessages"
+      class="mb-7"/>
+    <SettingsSwitch :title="$t('privacy.settings.private-messages.title')"
+      :description="$t('privacy.settings.private-messages.description')"
+      :id="'privacy-settings-private-messages'" @click="privateMessages"
+      :value="store.settings.privateMessages"
       :handle-toggle-switch="
         (value:boolean) => (store.settings.privateMessages = value)
       "
-      class="mb-7"
-    />
+      class="mb-7"/>
   </Collapse>
 </template>

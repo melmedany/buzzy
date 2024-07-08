@@ -1,9 +1,9 @@
 package io.buzzy.sso.core;
 
-import io.buzzy.sso.core.service.ResourceBundleMessagesService;
+import io.buzzy.common.service.ResourceBundleMessagesService;
+import io.buzzy.common.util.LocaleUtil;
 import io.buzzy.common.web.model.APIResponse;
 import io.buzzy.common.web.model.ApiError;
-import io.buzzy.common.util.LocaleUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +25,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<APIResponse> handleException(Exception e, HttpServletRequest request) {
+    public ResponseEntity<APIResponse<Void>> handleException(Exception e, HttpServletRequest request) {
         LOGGER.error("An unexpected error: ", e);
 
         String errorMessage = messageSource.getMessage("global.error", LocaleUtil.getRequestLocale(request));
 
-        return new ResponseEntity<>(new APIResponse(null, List.of(new ApiError(null, errorMessage))), HttpStatus.INTERNAL_SERVER_ERROR);
+        return new ResponseEntity<>(new APIResponse<>(null, List.of(new ApiError(null, errorMessage))), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

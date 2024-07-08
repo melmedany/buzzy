@@ -2,7 +2,7 @@
 import { computed } from "vue";
 
 import { ICall } from "@src/types";
-import { getCallName, getOtherMembers } from "@src/utils";
+import {getCallName, getOtherMembers, timeAgo} from "@src/utils";
 
 import {
   PhoneIcon,
@@ -138,7 +138,7 @@ const handleOpenInfoModal = () => {
             variant="body-2"
             class="flex justify-start items-center"
           >
-            {{ props.call.date }}
+            {{ timeAgo(props.call.date) }}
           </Typography>
         </div>
       </div>

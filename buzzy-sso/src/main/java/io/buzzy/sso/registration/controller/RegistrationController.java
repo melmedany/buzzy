@@ -1,9 +1,9 @@
 package io.buzzy.sso.registration.controller;
 
+import io.buzzy.common.web.model.APIResponse;
 import io.buzzy.sso.registration.controller.model.SignupRequest;
 import io.buzzy.sso.registration.controller.model.UserDTO;
 import io.buzzy.sso.registration.service.RegistrationService;
-import io.buzzy.common.web.model.APIResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -23,10 +23,10 @@ public class RegistrationController implements RegistrationAPI {
     }
 
     @Override
-    public ResponseEntity<APIResponse> signup(SignupRequest signupRequest) {
-        LOGGER.info("Creating new user account");
+    public ResponseEntity<APIResponse<UserDTO>> signup(SignupRequest signupRequest) {
+        LOGGER.debug("Creating new user account");
         UserDTO userDTO = registrationService.createUser(signupRequest);
-        return new ResponseEntity<>(new APIResponse(userDTO, null), HttpStatus.OK);
+        return new ResponseEntity<>(new APIResponse<>(userDTO, null), HttpStatus.OK);
     }
 
 }

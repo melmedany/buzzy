@@ -1,3 +1,4 @@
+SET TIME ZONE 'UTC';
 
 CREATE TABLE IF NOT EXISTS oauth2_authorization (
     id varchar(100) PRIMARY KEY NOT NULL,

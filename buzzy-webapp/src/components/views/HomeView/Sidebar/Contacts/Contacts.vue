@@ -36,13 +36,13 @@ watch(searchText, () => {
 
       newGroup.contacts = newGroup.contacts.filter((contact) => {
         if (
-          contact.firstName
+          contact.firstname
             .toLowerCase()
             .includes(searchText.value.toLowerCase())
         )
           return true;
         else if (
-          contact.lastName
+          contact.lastname
             .toLowerCase()
             .includes(searchText.value.toLowerCase())
         )
@@ -59,19 +59,14 @@ watch(searchText, () => {
   <div>
     <SidebarHeader>
       <!--title-->
-      <template v-slot:title>Contacts</template>
+      <template v-slot:title>{{ $t('side-bar.header.contacts.title') }}</template>
 
       <!--side actions-->
       <template v-slot:actions>
-        <IconButton
-          @click="openModal = true"
-          class="w-7 h-7"
-          title="add contacts"
-          aria-label="add contacts"
-        >
-          <UserPlusIcon
-            class="w-[1.25rem] h-[1.25rem] text-indigo-300 hover:text-indigo-400"
-          />
+        <IconButton @click="openModal = true" class="w-7 h-7"
+          :title="$t('contacts.add.contacts.title')"
+          :aria-label="$t('contacts.add.contacts.aria-label')" >
+          <UserPlusIcon class="w-[1.25rem] h-[1.25rem] text-indigo-300 hover:text-indigo-400" />
         </IconButton>
       </template>
     </SidebarHeader>
@@ -82,26 +77,17 @@ watch(searchText, () => {
     </div>
 
     <!--content-->
-    <div
-      ref="contactContainer"
-      class="w-full h-full scroll-smooth scrollbar-hidden"
-      style="overflow-x: visible; overflow-y: scroll"
-    >
-      <Loading2
-        v-if="store.status === 'loading' || store.delayLoading"
-        v-for="item in 5"
-      />
+    <div ref="contactContainer" class="w-full h-full scroll-smooth scrollbar-hidden" style="overflow-x: visible; overflow-y: scroll" >
+      <Loading2 v-if="store.status === 'loading' || store.delayLoading" v-for="item in 5" />
 
-      <SortedContacts
-        v-else-if="
+      <SortedContacts v-else-if="
           store.status === 'success' &&
           !store.delayLoading &&
           store.user &&
-          store.user.contacts.length > 0
-        "
+          store.user.contacts &&
+          store.user.contacts!!.length > 0 "
         :contactGroups="filteredContactGroups"
-        :bottom-edge="(contactContainer as HTMLElement)?.getBoundingClientRect().bottom"
-      />
+        :bottom-edge="(contactContainer as HTMLElement)?.getBoundingClientRect().bottom" />
 
       <NoContacts v-else />
     </div>

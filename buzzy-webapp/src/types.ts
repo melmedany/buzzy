@@ -1,25 +1,27 @@
 export interface IToken {
-  accessToken: String,
-  refreshToken: String,
+  accessToken: string,
+  refreshToken: string,
   expiresAt: Date;
 }
 
 export interface IUser {
-  id: number;
-  firstName: string;
-  lastName: string;
+  id: string;
+  username: string;
+  firstname: string;
+  lastname: string;
   email: string;
-  avatar: string;
-  token: IToken;
-  lastSeen: Date;
-  contacts: IContact[];
+  avatar?: string;
+  lastSeen?: Date;
+  contacts?: IContact[];
+  settings?: ISettings;
 }
 
 export interface IContact {
-  id: number;
-  firstName: string;
-  lastName: string;
+  id: string;
+  firstname: string;
+  lastname: string;
   avatar: string;
+  username: string;
   email: string;
   lastSeen: Date;
 }
@@ -33,7 +35,7 @@ export interface IPreviewData {
 }
 
 export interface IAttachment {
-  id: number;
+  id: string;
   type: string;
   name: string;
   size: string;
@@ -43,7 +45,7 @@ export interface IAttachment {
 }
 
 export interface IRecording {
-  id: number;
+  id: string;
   size: string;
   src: string;
   duration: string;
@@ -51,23 +53,23 @@ export interface IRecording {
 }
 
 export interface IMessage {
-  id: number;
+  id: string;
   type?: string;
   content?: string | IRecording;
-  date: string;
+  date: Date;
   sender: IContact;
-  replyTo?: number;
+  replyTo?: string;
   previewData?: IPreviewData;
   attachments?: IAttachment[];
   state: string;
 }
 
 export interface IConversation {
-  id: number;
+  id: string;
   type: string;
   name?: string;
   avatar?: string;
-  admins?: number[];
+  admins?: string[];
   contacts: IContact[];
   messages: IMessage[];
   pinnedMessage?: IMessage;
@@ -97,16 +99,17 @@ export interface ISettings {
   borderedTheme: boolean;
   allowNotifications: boolean;
   keepNotifications: boolean;
+  preferredLanguage: string;
 }
 
 export interface ICall {
   type: string;
   direction: string;
   status: string;
-  date: string;
+  date: Date;
   length: string;
   members: IContact[];
-  adminIds: number[];
+  adminIds: string[];
 }
 
 export interface IEmoji {
@@ -114,4 +117,51 @@ export interface IEmoji {
   u: string;
   r?: string;
   v?: string[];
+}
+
+export interface MessageBody {
+  messageType: string;
+  body: string;
+}
+
+export interface Messages {
+  [key: string]: MessageBody[];
+}
+
+export interface SignupForm {
+  username: string,
+  firstname: string,
+  lastname: string,
+  password: string,
+  confirmPassword: string
+}
+
+export interface SigninForm {
+  username: string,
+  password: string,
+  grant_type: string
+}
+
+export interface TokensResponse {
+  access_token: string;
+  refresh_token: string;
+  expires_in: number;
+}
+
+export interface APIResponse<T> {
+  data: T | null;
+  errors: ApiError[] | null;
+}
+
+export interface ApiError {
+  field: string;
+  message: string;
+  code?: string | null; // Optional property
+}
+
+export function emptyResponse<T>(): APIResponse<T> {
+  return {
+    data: null,
+    errors: null,
+  };
 }

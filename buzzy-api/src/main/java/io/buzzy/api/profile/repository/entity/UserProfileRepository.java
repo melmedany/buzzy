@@ -1,0 +1,18 @@
+package io.buzzy.api.profile.repository.entity;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+@Repository
+public interface UserProfileRepository extends JpaRepository<UserProfile, UUID> {
+    Optional<UserProfile> findByUserId(UUID userId);
+    Optional<UserProfile> findByUsername(String username);
+
+    @Query("SELECT u FROM UserProfile u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) AND LOWER(u.username) <> LOWER(:username) AND u.username NOT IN (SELECT c.username FROM UserProfile currUser JOIN currUser.connections c WHERE LOWER(currUser.username) = LOWER(:username))")
+    List<UserProfile> searchUserProfiles(String keyword, String username);
+}

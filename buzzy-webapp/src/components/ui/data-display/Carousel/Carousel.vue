@@ -14,7 +14,7 @@ import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/24/solid";
 
 const props = defineProps<{
   open: boolean;
-  startingId?: number;
+  startingId?: string;
   closeCarousel: () => void;
 }>();
 

@@ -2,7 +2,7 @@
 import type { IContact, IConversation, IMessage } from "@src/types";
 import { computed } from "vue";
 
-import { hasAttachments } from "@src/utils";
+import {hasAttachments, timeAgo} from "@src/utils";
 
 import { ArrowUturnLeftIcon } from "@heroicons/vue/24/outline";
 import MediaItem from "@src/components/shared/modals/ConversationInfoModal/MediaItem.vue";
@@ -79,7 +79,7 @@ const attachmentMessages = computed(() => {
         <MediaItem
           v-for="(attachment, index) in message.attachments"
           :attachment="attachment"
-          :date="message.date"
+          :date="timeAgo(message.date)"
           :key="index"
         />
       </div>

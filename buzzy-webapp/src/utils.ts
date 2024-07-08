@@ -1,12 +1,10 @@
 import useStore from "@src/store/store";
-import type {
-  ICall,
-  IContact,
-  IConversation,
-  IMessage,
-  IRecording,
-} from "@src/types";
-import { useRoute } from "vue-router";
+import type {ICall, IContact, IConversation, IMessage, IRecording,} from "@src/types";
+import {useRoute} from "vue-router";
+import i18n from "@src/i18n";
+import moment from 'moment'
+import 'moment/dist/locale/nl'
+import 'moment-timezone'
 
 /**
  * combine first name and last name of a contact.
@@ -15,9 +13,9 @@ import { useRoute } from "vue-router";
  */
 export const getFullName = (contact: IContact, hyphen?: boolean) => {
   if (hyphen) {
-    return contact.firstName + "-" + contact.lastName;
+    return contact.firstname + "-" + contact.lastname;
   } else {
-    return contact.firstName + " " + contact.lastName;
+    return contact.firstname + " " + contact.lastname;
   }
 };
 
@@ -26,8 +24,13 @@ export const getFullName = (contact: IContact, hyphen?: boolean) => {
  * @param conversation
  * @returns A contact object representing the other user in the conversation.
  */
+
 export const getOddContact = (conversation: IConversation) => {
   const store = useStore();
+
+  if (conversation.contacts.length == 1) {
+    return conversation.contacts[0];
+  }
 
   let oddContact;
 
@@ -60,7 +63,7 @@ export const getAvatar = (conversation: IConversation) => {
  * @returns String
  */
 export const getName = (conversation: IConversation, hyphen?: boolean) => {
-  if (["group", "broadcast"].includes(conversation.type)) {
+  if (["group", "broadcast"].includes(conversation?.type)) {
     if (hyphen) {
       return (conversation.name as string).split(" ").join("-");
     } else {
@@ -87,7 +90,7 @@ export const shorten = (message: IMessage | string, maxLength: number = 23) => {
   if (typeof message === "string") {
     text = message;
   } else {
-    text = message.content;
+    text = message?.content;
   }
 
   if (text && typeof text === "string") {
@@ -110,7 +113,7 @@ export const shorten = (message: IMessage | string, maxLength: number = 23) => {
  * @returns A boolean indicating whether the message has attachments
  */
 export const hasAttachments = (message: IMessage) => {
-  let attachments = message.attachments;
+  let attachments = message?.attachments;
   return attachments && attachments.length > 0;
 };
 
@@ -119,7 +122,7 @@ export const hasAttachments = (message: IMessage) => {
  */
 export const getActiveConversationId = () => {
   const route = useRoute();
-  return route.params.id ? Number(route.params.id) : undefined;
+  return route.params.id ? route.params.id : undefined;
 };
 
 /**
@@ -128,7 +131,7 @@ export const getActiveConversationId = () => {
  * @returns A number indicating the index of the conversation.
  */
 export const getConversationIndex = (
-  conversationId: number
+  conversationId: string
 ): number | undefined => {
   let conversationIndex;
   const store = useStore();
@@ -195,7 +198,7 @@ export const getCallName = (
 
 export const getMessageById = (
   conversation: IConversation,
-  messageId?: number
+  messageId?: string
 ) => {
   if (messageId) {
     return conversation.messages.find((message) => message.id === messageId);
@@ -214,3 +217,34 @@ export const unicodeToEmoji = (unicode: string) => {
     .map((hex) => String.fromCodePoint(hex))
     .join("");
 };
+
+
+export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const setLocale = (locale: string) => {
+  const t = i18n.global;
+  t.locale.value = locale || t.locale.value;
+};
+
+export const timeAgo = (date?: Date): string => {
+  if (!date) return "unknown"
+  moment.locale(useStore().settings!!.preferredLanguage)
+  const zonedDate = moment.utc(date).tz(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  return zonedDate.fromNow()
+}
+
+export const dayFormat = (date: Date, format: string): string => {
+  moment.locale(useStore().settings!!.preferredLanguage)
+  const zonedDate = moment.utc(date).tz(Intl.DateTimeFormat().resolvedOptions().timeZone)
+  return zonedDate.format(format)
+}
+
+export const isSameDay = (now: Date, then: Date): boolean => {
+  now = new Date(now)
+  then = new Date(then)
+
+  return now.getFullYear() === then.getFullYear() &&
+      now.getMonth() === then.getMonth() &&
+      now.getDate() === then.getDate();
+}
+

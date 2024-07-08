@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import type { Ref } from "vue";
+import type {Ref} from "vue";
+import {computed, provide, ref} from "vue";
 
 import useStore from "@src/store/store";
-import { computed, provide, ref } from "vue";
 
-import { getActiveConversationId } from "@src/utils";
+import {getActiveConversationId} from "@src/utils";
 
 import NoChatSelected from "@src/components/states/empty-states/NoChatSelected.vue";
 import Loading3 from "@src/components/states/loading-states/Loading3.vue";
@@ -16,7 +16,7 @@ const store = useStore();
 
 // search the selected conversation using activeConversationId.
 const activeConversation = computed(() => {
-  let activeConversation = store.conversations.find(
+  let activeConversation = store.conversations?.find(
     (conversation) => conversation.id === getActiveConversationId()
   );
 
@@ -39,10 +39,10 @@ const selectMode = ref(false);
 const selectAll = ref(false);
 
 // holds the selected conversations.
-const selectedMessages: Ref<number[]> = ref([]);
+const selectedMessages: Ref<string[]> = ref([]);
 
 // (event) add message to select messages.
-const handleSelectMessage = (messageId: number) => {
+const handleSelectMessage = (messageId: string) => {
   selectedMessages.value.push(messageId);
 
   if (
@@ -58,7 +58,7 @@ const handleSelectMessage = (messageId: number) => {
 };
 
 // (event) remove message from select messages.
-const handleDeselectMessage = (messageId: number) => {
+const handleDeselectMessage = (messageId: string) => {
   selectAll.value = false;
   selectedMessages.value = selectedMessages.value.filter(
     (item) => item !== messageId
@@ -108,7 +108,7 @@ const handleCloseSelect = () => {
       :handle-deselect-all="handleDeselectAll"
       :handle-close-select="handleCloseSelect"
     />
-    <ChatMiddle
+    <ChatMiddle id="ChatMiddle"
       :selected-messages="selectedMessages"
       :handle-select-message="handleSelectMessage"
       :handle-deselect-message="handleDeselectMessage"

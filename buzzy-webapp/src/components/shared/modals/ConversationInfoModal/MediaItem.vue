@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import type { IAttachment } from "@src/types";
+import type {IAttachment} from "@src/types";
 
-import {
-  DocumentIcon,
-  PhotoIcon,
-  VideoCameraIcon,
-} from "@heroicons/vue/24/outline";
+import {DocumentIcon, PhotoIcon, VideoCameraIcon,} from "@heroicons/vue/24/outline";
 import Typography from "@src/components/ui/data-display/Typography.vue";
 
 const props = defineProps<{

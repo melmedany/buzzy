@@ -1,0 +1,43 @@
+package io.buzzy.api.profile.mapper;
+
+import io.buzzy.api.profile.controller.model.UserConnectionDTO;
+import io.buzzy.api.profile.controller.model.UserProfileDTO;
+import io.buzzy.api.profile.repository.entity.UserProfile;
+import io.buzzy.common.messaging.model.NewConnectionDTO;
+import io.buzzy.common.messaging.model.SuccessfulRegistrationDTO;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingConstants;
+
+import java.util.List;
+import java.util.UUID;
+
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface UserProfileMapper {
+    UserProfile successfulRegistrationToUserProfile(SuccessfulRegistrationDTO successfulRegistrationDTO);
+
+    UserProfileDTO toUserProfileDTO(UserProfile userProfile);
+
+    List<UserProfileDTO> toUserProfileDTOList(List<UserProfile> userProfile);
+
+    default NewConnectionDTO toNewConnectionDTO(UUID userId, UUID connectionId) {
+        NewConnectionDTO newConnectionDTO = new NewConnectionDTO();
+        newConnectionDTO.setConnectionId(connectionId.toString());
+        newConnectionDTO.setUserId(userId.toString());
+        return newConnectionDTO;
+    }
+
+    default UUID mapToUUID(String userId) {
+        return UUID.fromString(userId);
+    }
+
+    default UserConnectionDTO mapToUserConnectionDTO(UserProfile connection) {
+        UserConnectionDTO connectionDTO = new UserConnectionDTO();
+        connectionDTO.setId(connection.getId());
+        connectionDTO.setUsername(connection.getUsername());
+        connectionDTO.setFirstname(connection.getFirstname());
+        connectionDTO.setLastname(connection.getLastname());
+        connectionDTO.setLastSeen(connection.getLastSeen());
+
+        return connectionDTO;
+    }
+}

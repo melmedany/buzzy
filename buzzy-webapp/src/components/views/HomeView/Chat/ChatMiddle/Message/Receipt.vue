@@ -8,13 +8,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <ClockIcon
-    v-if="props.state === 'waiting'"
-    class="w-[.875rem] h-[.875rem] text-gray-300"
-  />
-  <CheckIcon
-    v-else-if="props.state === 'sent'"
-    class="w-[.875rem] h-[.875rem] text-gray-300"
-  />
+  <ClockIcon v-if="props.state === 'sending'" class="w-[.875rem] h-[.875rem] text-gray-300" />
+  <CheckIcon v-else-if="props.state === 'sent'" class="w-[.875rem] h-[.875rem] text-gray-300" />
   <DoubleChecks v-else :state="props.state" />
 </template>

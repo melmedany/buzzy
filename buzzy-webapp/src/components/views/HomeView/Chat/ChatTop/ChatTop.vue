@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import type { IConversation } from "@src/types";
+import type {IConversation} from "@src/types";
 
 import useStore from "@src/store/store";
-import { inject, ref, computed } from "vue";
+import {inject, ref} from "vue";
 
 import ConversationInfoModal from "@src/components/shared/modals/ConversationInfoModal/ConversationInfoModal.vue";
 import SearchModal from "@src/components/shared/modals/SearchModal/SearchModal.vue";
 import VoiceCallModal from "@src/components/shared/modals/VoiceCallModal/VoiceCallModal.vue";
-import PinnedMessage from "@src/components/views/HomeView/Chat/ChatTop/PinnedMessage.vue";
-import FadeTransition from "@src/components/ui/transitions/FadeTransition.vue";
 import ConversationInfoSection from "./ConversationInfoSection.vue";
 import SelectSection from "./SelectSection.vue";
 
@@ -56,51 +54,34 @@ const handleCloseVoiceCallModal = (endCall: boolean) => {
   <div class="w-full">
     <!--Top section-->
     <div class="w-full min-h-[5.25rem] px-5 py-6">
-      <SelectSection
-        v-if="props.selectMode"
-        :select-mode="props.selectMode"
-        :select-all="props.selectAll"
-        :handle-close-select="props.handleCloseSelect"
-        :handle-select-all="props.handleSelectAll"
-        :handle-deselect-all="props.handleDeselectAll"
-      />
-      <ConversationInfoSection
-        v-else
-        :handle-open-info="handleOpenInfo"
-        :handle-open-search="handleOpenSearch"
-      />
+      <SelectSection v-if="props.selectMode"
+                     :select-mode="props.selectMode"
+                     :select-all="props.selectAll"
+                     :handle-close-select="props.handleCloseSelect"
+                     :handle-select-all="props.handleSelectAll"
+                     :handle-deselect-all="props.handleDeselectAll"/>
+      <ConversationInfoSection v-else :handle-open-info="handleOpenInfo" :handle-open-search="handleOpenSearch"/>
     </div>
 
     <!--Pinned Message-->
-    <div
-      class="relative transition-[padding] duration-200"
-      :class="{
-        'pb-[3.75rem]':
-          activeConversation.pinnedMessage &&
-          !activeConversation.pinnedMessageHidden,
-      }"
-    >
-      <PinnedMessage :active-conversation="activeConversation" />
-    </div>
+    <!--    <div-->
+    <!--      class="relative transition-[padding] duration-200"-->
+    <!--      :class="{-->
+    <!--        'pb-[3.75rem]':-->
+    <!--          activeConversation.pinnedMessage &&-->
+    <!--          !activeConversation.pinnedMessageHidden,-->
+    <!--      }"-->
+    <!--    >-->
+    <!--      <PinnedMessage :active-conversation="activeConversation" />-->
+    <!--    </div>-->
 
     <!--Search modal-->
-    <SearchModal
-      :open="openSearch"
-      :close-modal="() => (openSearch = false)"
-      :conversation="activeConversation"
-    />
+    <SearchModal :open="openSearch" :close-modal="() => (openSearch = false)" :conversation="activeConversation"/>
 
     <!--Contact info modal-->
-    <ConversationInfoModal
-      :open="openInfo"
-      :closeModal="() => (openInfo = false)"
-      :conversation="activeConversation"
-    />
+    <ConversationInfoModal :open="openInfo" :closeModal="() => (openInfo = false)" :conversation="activeConversation"/>
 
     <!--voice call modal-->
-    <VoiceCallModal
-      :open="store.openVoiceCall"
-      :close-modal="handleCloseVoiceCallModal"
-    />
+    <VoiceCallModal :open="store.openVoiceCall" :close-modal="handleCloseVoiceCallModal"/>
   </div>
 </template>

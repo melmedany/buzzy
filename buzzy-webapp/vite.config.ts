@@ -11,8 +11,12 @@ const rootDir = resolve(__dirname);
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    host: '127.0.0.1',
-    port: 3000
+    host: '0.0.0.0',
+    port: 3000,
+    hmr: {
+      host: 'buzzy.io',
+      port: 3000,
+    },
   },
   plugins: [vue(), alias()],
   resolve: {

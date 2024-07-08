@@ -13,6 +13,7 @@ import {
 import InfoItem from "@src/components/shared/blocks/InfoItem.vue";
 import Typography from "@src/components/ui/data-display/Typography.vue";
 import Button from "@src/components/ui/inputs/Button.vue";
+import {timeAgo} from "@src/utils";
 
 const props = defineProps<{
   call: ICall;
@@ -57,7 +58,7 @@ const CallStatusIcon = computed(() => {
 
     <div v-if="props.call" class="w-full py-7">
       <div class="px-5 pb-5 flex items-center">
-        <InfoItem :icon="CalendarIcon" :title="props.call.date" />
+        <InfoItem :icon="CalendarIcon" :title="timeAgo(props.call.date)" />
       </div>
 
       <div class="px-5 pb-5 flex items-center">

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+const emit = defineEmits(["keywordChanged"]);
 import type { Ref } from "vue";
 
 import { twMerge } from "tailwind-merge";
@@ -34,37 +35,25 @@ const classes = twMerge(baseClasses, variantClasses.value, props.class);
 <template>
   <div class="relative">
     <i class="absolute left-0 top-[.6563rem] ml-3 text-center">
-      <MagnifyingGlassIcon
-        class="w-5 h-5 stroke-2 text-black opacity-40 dark:text-white dark:opacity-70"
-      />
+      <MagnifyingGlassIcon class="w-5 h-5 stroke-2 text-black opacity-40 dark:text-white dark:opacity-70" />
     </i>
-    <input
-      ref="input"
-      type="text"
-      placeholder="Search.."
+    <input ref="input" type="text" :placeholder="$t('search.input.placeholder')"
       :class="classes"
-      @input="$event => {
-        $emit('update:modelValue', ($event.target as HTMLInputElement).value)
-      }
-      "
+      @input="$emit('keywordChanged', ($event.target as HTMLInputElement).value)"
     />
     <div class="absolute top-0 right-0">
       <slot name="endAdornment">
-        <IconButton
-          v-if="input && input.value"
+        <IconButton v-if="input && input.value"
           @click="
             ($event) => {
               if (input) input.value = '';
               $emit('update:modelValue', '');
             }
           "
-          title="clear text"
-          aria-label="clear text"
-          class="m-[.5rem] p-2"
-        >
-          <XCircleIcon
-            class="w-5 h-5 text-black opacity-40 dark:text-white dark:opacity-60"
-          />
+          :title="$t('search.input.clear.text')"
+          :aria-label="$t('search.input.clear.aria-label')"
+          class="m-[.5rem] p-2">
+          <XCircleIcon class="w-5 h-5 text-black opacity-40 dark:text-white dark:opacity-60" />
         </IconButton>
       </slot>
     </div>

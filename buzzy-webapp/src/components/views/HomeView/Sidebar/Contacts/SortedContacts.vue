@@ -111,39 +111,27 @@ const handleClickOutside = (event: Event) => {
         <!--dropdown menu-->
         <div class="relative">
           <!--dropdown menu button-->
-          <IconButton
-            :id="'open-contact-menu-' + index"
+          <IconButton :id="'open-contact-menu-' + index"
             :aria-expanded="(dropdownMenuStates as boolean[][])[groupIndex][index]"
             :aria-controls="'contact-menu-' + index"
             @click="(event) => handleToggleDropdown(event, groupIndex, index)"
             class="open-menu w-6 h-6"
-            title="toggle contact menu"
-            aria-label="toggle contact menu"
-          >
-            <EllipsisVerticalIcon
-              class="open-menu h-5 w-5 text-black opacity-60 dark:text-white dark:opacity-70"
-              tabindex="0"
-            />
+            :title="$t('contacts.contact.menu.button.title')"
+            :aria-label="$t('contacts.contact.menu.button.aria-label')" >
+            <EllipsisVerticalIcon class="open-menu h-5 w-5 text-black opacity-60 dark:text-white dark:opacity-70" tabindex="0" />
           </IconButton>
 
-          <Dropdown
-            :id="'contact-menu-' + index"
-            :close-dropdown="handleCloseAllMenus"
-            :handle-click-outside="handleClickOutside"
-            :aria-labelledby="'open-contact-menu-' + index"
-            :show="(dropdownMenuStates as boolean[][])[groupIndex][index]"
-            :position="dropdownMenuPosition"
-          >
+          <Dropdown :id="'contact-menu-' + index" :close-dropdown="handleCloseAllMenus" :handle-click-outside="handleClickOutside"
+            :aria-labelledby="'open-contact-menu-' + index" :show="(dropdownMenuStates as boolean[][])[groupIndex][index]"
+            :position="dropdownMenuPosition" >
             <DropdownLink>
-              <InformationCircleIcon
-                class="h-5 w-5 mr-3 text-black opacity-60 dark:text-white dark:opacity-70"
-              />
-              Personal information
+              <InformationCircleIcon class="h-5 w-5 mr-3 text-black opacity-60 dark:text-white dark:opacity-70"/>
+              {{ $t('contacts.contact.menu.personal.information') }}
             </DropdownLink>
 
             <DropdownLink color="danger">
               <TrashIcon class="h-5 w-5 mr-3" />
-              Delete contact
+              {{ $t('contacts.contact.menu.delete.contact') }}
             </DropdownLink>
           </Dropdown>
         </div>

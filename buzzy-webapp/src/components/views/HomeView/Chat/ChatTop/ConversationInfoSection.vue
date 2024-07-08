@@ -4,7 +4,7 @@ import type { IConversation } from "@src/types";
 import router from "@src/router";
 import { activeCall } from "@src/store/defaults";
 import useStore from "@src/store/store";
-import { getAvatar, getName } from "@src/utils";
+import {getAvatar, getName, getOddContact, timeAgo} from "@src/utils";
 import { inject, ref } from "vue";
 
 import {
@@ -115,9 +115,8 @@ const handleOpenVoiceCallModal = () => {
           variant="body-2"
           class="font-extralight default-outline rounded-[.25rem]"
           tabindex="0"
-          aria-label="Last seen december 16, 2019"
-        >
-          Last seen Dec 16, 2019
+          aria-label="Last seen december 16, 2019">
+          {{ timeAgo(getOddContact(activeConversation)!!.lastSeen) }}
         </Typography>
       </div>
     </div>

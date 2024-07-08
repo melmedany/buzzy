@@ -29,10 +29,10 @@ const props = defineProps<{
 
     <!--content-->
     <div :class="props.vertical ? [] : ['flex', 'flex-col', 'items-start']">
-      <Typography variant="heading-2" class="mb-3">No conversations</Typography>
+      <Typography variant="heading-2" class="mb-3">{{ $t('conversations.no.conversations.title') }}</Typography>
 
       <Typography variant="body-2" class="flex">
-        click pencil icon to create one.
+        {{ $t('conversations.create.conversations.title') }}
       </Typography>
     </div>
   </div>

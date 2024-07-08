@@ -1,17 +1,10 @@
-import { defineStore } from "pinia";
-import type { Ref } from "vue";
-import { computed, ref } from "vue";
+import {defineStore} from "pinia";
+import type {Ref} from "vue";
+import {computed, ref} from "vue";
 
 import defaults from "@src/store/defaults";
-import type {
-  IConversation,
-  IContactGroup,
-  IUser,
-  INotification,
-  ICall,
-  ISettings,
-  IEmoji,
-} from "@src/types";
+import type {ICall, IContactGroup, IConversation, IEmoji, INotification, ISettings, IUser,} from "@src/types";
+import {IToken} from "@src/types";
 
 const useStore = defineStore("chat", () => {
   // local storage
@@ -22,8 +15,9 @@ const useStore = defineStore("chat", () => {
 
   // app data refs
   // data refs
-  const user: Ref<IUser | undefined> = ref(storage.user || defaults.initUser);
-  const conversations: Ref<IConversation[]> = ref(defaults.conversations || []);
+  const user: Ref<IUser | undefined> = ref(storage.user);
+  const tokens: Ref<IToken | undefined> = ref(storage.tokens);
+  const conversations: Ref<IConversation[]> = ref(storage.conversations);
   const notifications: Ref<INotification[]> = ref(defaults.notifications || []);
   const archivedConversations: Ref<IConversation[]> = ref(
     defaults.archive || []
@@ -48,9 +42,9 @@ const useStore = defineStore("chat", () => {
   const openVoiceCall = ref(false);
 
   // contacts grouped alphabetically.
-  const contactGroups: Ref<IContactGroup[] | undefined> = computed(() => {
+  const contactGroups: Ref<IContactGroup[] | undefined>  = computed(() => {
     if (user.value) {
-      let sortedContacts = [...user.value.contacts];
+      let sortedContacts  = [...user.value.contacts ?? []] ;
 
       sortedContacts.sort();
 
@@ -61,8 +55,8 @@ const useStore = defineStore("chat", () => {
       // create an array of letter for every different sort level.
       for (let contact of sortedContacts) {
         // if the first letter is different create a new group.
-        if (contact.firstName[0].toUpperCase() !== currentLetter) {
-          currentLetter = contact.firstName[0].toUpperCase();
+        if (contact.firstname[0].toUpperCase() !== currentLetter) {
+          currentLetter = contact.firstname[0].toUpperCase();
           groupNames.push(currentLetter);
         }
       }
@@ -71,7 +65,7 @@ const useStore = defineStore("chat", () => {
       for (let groupName of groupNames) {
         let group: IContactGroup = { letter: groupName, contacts: [] };
         for (let contact of sortedContacts) {
-          if (contact.firstName[0].toUpperCase() === groupName) {
+          if (contact.firstname[0].toUpperCase() === groupName) {
             group.contacts.push(contact);
           }
         }
@@ -84,6 +78,17 @@ const useStore = defineStore("chat", () => {
 
   const getStatus = computed(() => status);
 
+  function $reset() {
+    status.value = "";
+    user.value = undefined;
+    tokens.value = undefined;
+    conversations.value = [];
+    notifications.value = [];
+    archivedConversations.value = [];
+    // settings.value = {...defaults.defaultSettings};
+    delayLoading.value = true
+  }
+
   return {
     // status refs
     status,
@@ -91,6 +96,7 @@ const useStore = defineStore("chat", () => {
 
     // data refs
     user,
+    tokens,
     conversations,
     contactGroups,
     notifications,
@@ -107,6 +113,8 @@ const useStore = defineStore("chat", () => {
     conversationOpen,
     callMinimized,
     openVoiceCall,
+
+    $reset
   };
 });
 

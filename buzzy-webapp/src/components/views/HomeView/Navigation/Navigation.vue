@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import {ref} from "vue";
 
 import useStore from "@src/store/store";
 
@@ -15,8 +15,11 @@ import {
 import AccountDropdown from "@src/components/views/HomeView/Navigation/AccountDropdown.vue";
 import Logo from "@src/components/views/HomeView/Navigation/Logo.vue";
 import NavLink from "@src/components/views/HomeView/Navigation/NavLink.vue";
+import userProfileClient from "@src/clients/user-profile-client";
+import {defaultSettings} from "@src/store/defaults";
 
 const store = useStore();
+const preferredLanguage = store.settings.preferredLanguage || defaultSettings.preferredLanguage
 
 const showDropdown = ref(false);
 
@@ -24,37 +27,36 @@ const showDropdown = ref(false);
 const handleActiveSidebarComponentChange = (value: string) => {
   store.activeSidebarComponent = value;
 };
+
+const darkMode = () => {
+  store.settings.darkMode = !store.settings.darkMode
+  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+}
 </script>
 
 <template>
-  <div
-    class="xs:w-full md:w-11 md:h-full md:py-7 xs:py-5 px-5 flex xs:flex-row md:flex-col items-center transition-all duration-500"
-  >
+  <div class="xs:w-full md:w-11 md:h-full md:py-7 xs:py-5 px-5 flex xs:flex-row md:flex-col items-center transition-all duration-500">
     <!--logo-->
     <Logo />
 
     <!--main navigation-->
     <div class="grow">
-      <nav aria-label="Main navigation">
+      <nav :aria-label="$t('navigation.main.label')">
         <ul class="xs:flex md:block xs:justify-between xs:items-center">
           <!--message button-->
           <li>
-            <NavLink
-              :icon="ChatBubbleOvalLeftIcon"
-              title="Conversations"
+            <NavLink :icon="ChatBubbleOvalLeftIcon"
+              :title="$t('navigation.conversations.title')"
               @click="() => handleActiveSidebarComponentChange('messages')"
-              :active="store.activeSidebarComponent === 'messages'"
-            />
+              :active="store.activeSidebarComponent === 'messages'"/>
           </li>
 
           <!--contacts list button-->
           <li>
-            <NavLink
-              :icon="UserIcon"
-              title="Contacts"
+            <NavLink :icon="UserIcon"
+             :title="$t('navigation.contacts.title')"
               @click="() => handleActiveSidebarComponentChange('contacts')"
-              :active="store.activeSidebarComponent === 'contacts'"
-            />
+              :active="store.activeSidebarComponent === 'contacts'" />
           </li>
 
           <!--dropdown button small screen-->
@@ -65,15 +67,13 @@ const handleActiveSidebarComponentChange = (value: string) => {
               aria-labelledby="small-profile-menu-button"
               :show-dropdown="showDropdown"
               :handle-show-dropdown="() => (showDropdown = true)"
-              :handle-close-dropdown="() => (showDropdown = false)"
-            />
+              :handle-close-dropdown="() => (showDropdown = false)" />
           </li>
 
           <!--notifications button-->
           <li class="xs:hidden md:inline">
-            <NavLink
-              :icon="BellIcon"
-              title="Notifications"
+            <NavLink :icon="BellIcon"
+              :title="$t('navigation.notifications.title')"
               :notifications="3"
               @click="() => handleActiveSidebarComponentChange('notifications')"
               :active="store.activeSidebarComponent === 'notifications'"
@@ -82,9 +82,8 @@ const handleActiveSidebarComponentChange = (value: string) => {
 
           <!--voice call button-->
           <li>
-            <NavLink
-              :icon="PhoneIcon"
-              title="Call log"
+            <NavLink :icon="PhoneIcon"
+              :title="$t('navigation.call.log.title')"
               @click="() => handleActiveSidebarComponentChange('phone')"
               :active="store.activeSidebarComponent === 'phone'"
             />
@@ -92,9 +91,8 @@ const handleActiveSidebarComponentChange = (value: string) => {
 
           <!--settings button small screen-->
           <li class="xs:inline md:hidden">
-            <NavLink
-              :icon="Cog6ToothIcon"
-              title="Settings"
+            <NavLink :icon="Cog6ToothIcon"
+              :title="$t('navigation.settings.title')"
               @click="() => handleActiveSidebarComponentChange('settings')"
               :active="store.activeSidebarComponent === 'settings'"
             />
@@ -105,21 +103,18 @@ const handleActiveSidebarComponentChange = (value: string) => {
 
     <!--secondary navigation-->
     <div>
-      <nav aria-label="Extra navigation" class="xs:hidden md:block">
+      <nav :aria-label="$t('secondary.navigation.aria-label')" class="xs:hidden md:block">
         <ul>
           <!--toggle dark mode button-->
           <li>
-            <NavLink
-              :icon="store.settings.darkMode ? SunIcon : MoonIcon"
-              title="Night mode"
-              @click="store.settings.darkMode = !store.settings.darkMode"
-            />
+            <NavLink :icon="store.settings.darkMode ? SunIcon : MoonIcon"
+              :title="$t('secondary.dark-mode.button.title')"
+              @click="darkMode"/>
           </li>
           <!--settings button-->
           <li>
-            <NavLink
-              :icon="Cog6ToothIcon"
-              title="Settings"
+            <NavLink :icon="Cog6ToothIcon"
+              :title="$t('secondary.settings.button.title')"
               @click="() => handleActiveSidebarComponentChange('settings')"
               :active="store.activeSidebarComponent === 'settings'"
             />
@@ -128,19 +123,13 @@ const handleActiveSidebarComponentChange = (value: string) => {
       </nav>
 
       <!--separator-->
-      <hr
-        class="xs:hidden md:block mb-6 border-gray-100 dark:border-gray-600"
-      />
+      <hr class="xs:hidden md:block mb-6 border-gray-100 dark:border-gray-600" />
 
       <!--user avatar-->
-      <AccountDropdown
-        id="profile-menu"
-        class="xs:hidden md:block"
-        aria-labelledby="profile-menu-button"
+      <AccountDropdown id="profile-menu" class="xs:hidden md:block" aria-labelledby="profile-menu-button"
         :show-dropdown="showDropdown"
         :handle-show-dropdown="() => (showDropdown = true)"
-        :handle-close-dropdown="() => (showDropdown = false)"
-      />
+        :handle-close-dropdown="() => (showDropdown = false)" />
     </div>
   </div>
 </template>

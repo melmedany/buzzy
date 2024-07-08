@@ -4,8 +4,8 @@ import HomeView from "@src/components/views/HomeView/HomeView.vue";
 import PasswordResetView from "@src/components/views/PasswordResetView/PasswordResetView.vue";
 import Chat from "@src/components/views/HomeView/Chat/Chat.vue";
 import useStore from "@src/store/store";
-import {isBefore} from 'date-fns';
-import {IUser} from "@src/types";
+import {isBefore} from "date-fns";
+import {IToken} from "@src/types";
 
 const routes = [
   {
@@ -48,15 +48,14 @@ const router = createRouter({
   routes,
 });
 
-const isLoggedIn = (user: IUser): boolean => {
-  if (user == null || user.token == null) {
+const isLoggedIn = (tokens?: IToken): boolean => {
+  if (!tokens) {
     return false;
   } else {
-    const token = user.token;
-    const accessTokenExists = !!token.accessToken.trim();
-    const refreshTokenExists = !!token.refreshToken.trim();
-    const tokenExpired = isBefore(token.expiresAt, new Date());
-    return accessTokenExists || refreshTokenExists || !tokenExpired;
+    const accessTokenExists = !!tokens.accessToken.trim();
+    const refreshTokenExists = !!tokens.refreshToken.trim();
+    const tokenExpired = isBefore(tokens.expiresAt, new Date());
+    return accessTokenExists && refreshTokenExists && !tokenExpired;
   }
 };
 
@@ -64,14 +63,14 @@ const isLoggedIn = (user: IUser): boolean => {
 // (router gaurd) when navigating in mobile screen from chat to chatlist,
 // don't navigate to the previous chat navigate to the chatlist.
 router.beforeEach((to, from, next) => {
-  console.log(window.innerWidth);
+  // console.log(window.innerWidth);
 
   const store = useStore();
 
   if (to.matched.some(record => record.meta.requiresAuth)) {
-    if (!isLoggedIn(store.user!!)) {
+    if (!isLoggedIn(store.tokens)) {
       // Redirect to login page if token is not present
-      next('/access/sign-in/');
+      next("/access/sign-in/");
     } else {
       next(); // Continue to the route
     }

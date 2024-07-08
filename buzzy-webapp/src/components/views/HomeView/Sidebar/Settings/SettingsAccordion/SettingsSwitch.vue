@@ -3,6 +3,7 @@ import SwitchInput from "@src/components/ui/inputs/SwitchInput.vue";
 import Typography from "@src/components/ui/data-display/Typography.vue";
 
 const props = defineProps<{
+  id: string;
   value: boolean;
   title: string;
   description: string;
@@ -15,11 +16,9 @@ const props = defineProps<{
     <div class="flex">
       <!--label-->
       <div class="grow">
-        <label
-          for="last-seen"
+        <label :for="props.id"
           class="inline-block outline-none mb-4"
-          tabindex="0"
-        >
+          tabindex="0">
           <Typography variant="heading-2" class="w-13">
             {{ props.title }}
           </Typography>
@@ -27,8 +26,7 @@ const props = defineProps<{
       </div>
 
       <!--switch-->
-      <SwitchInput
-        id="last-seen"
+      <SwitchInput :id="props.id"
         :value="props.value"
         @switch-clicked="(value) => props.handleToggleSwitch(value)"
       />

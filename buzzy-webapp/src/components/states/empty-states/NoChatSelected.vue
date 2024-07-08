@@ -13,10 +13,10 @@ import Typography from "@src/components/ui/data-display/Typography.vue";
       />
     </div>
 
-    <Typography variant="heading-2" class="mb-3"> No chat selected </Typography>
+    <Typography variant="heading-2" class="mb-3"> {{ $t('conversations.chat.no.chat.selected.title') }} </Typography>
 
     <Typography variant="body-2" class="flex">
-      Select a conversation from the conversation menu.
+      {{ $t('conversations.chat.no.chat.selected.description') }}
     </Typography>
   </div>
 </template>

@@ -20,13 +20,15 @@ Each module of this monorepo plays a crucial role in the overall functionality o
 - **buzzy-sso** handles user registration, authentication and authorization centrally, ensuring secure access to the system.
 - **buzzy-api** provides the core chat functionalities, enabling users to send / receive messages, create and manage conversations.
 - **buzzy-webapp** offers a user-friendly interface through which users can interact with the chat system via web browsers.
+- **buzzy-websockets-server** provides real-time updates functionalities to users by keeping track of online / offline users and push update when online.
 
 ## Contents of Repository
 
 - **/buzzy-sso**: Contains the authentication and authorization server.
-- **/buzzy-api**: Implements the chat functionalities via API.
+- **/buzzy-api**: Provides the chat functionalities via API.
 - **/buzzy-common**: Shared library for utilities and shared models.
 - **/buzzy-webapp**: Frontend client for web-based access.
+- **/buzzy-websockets-server**: WebSockets server for real-time updates.
 
 ## Usage
 
@@ -34,7 +36,13 @@ Each module of this monorepo plays a crucial role in the overall functionality o
 
 * Basic dev environment with JDK installed (preferably latest version)
 * Docker Compose
-* Make sure that ports `9000` `8088` `3000` `5432` and `15432` are not used, as they are needed for build and run. Alternatively, you can configure the desired ports to use on [docker-compose.yml](docker-compose.yml) for each service
+* Make sure the below ports are not used, as they are needed for build and run. Alternatively, you can configure the desired ports to use on [docker-compose.yml](docker-compose.yml) for each service
+- buzzy-sso: `9000`, db: `5432`
+- buzzy-api: `8088`, db: `15432`
+- buzzy-websockets-server: `8085` 
+- buzzy-webapp: `3000`
+- kafka: `9092`, zookeeper: `2181` 
+- redis: `6379`
 
 ### Build
 

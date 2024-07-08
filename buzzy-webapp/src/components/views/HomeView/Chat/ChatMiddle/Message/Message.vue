@@ -10,7 +10,7 @@ import type { Ref } from "vue";
 import linkifyStr from "linkify-string";
 import { inject, ref } from "vue";
 
-import { getFullName, getMessageById } from "@src/utils";
+import {getFullName, getMessageById, timeAgo} from "@src/utils";
 
 import Typography from "@src/components/ui/data-display/Typography.vue";
 import Attachments from "@src/components/views/HomeView/Chat/ChatMiddle/Message/Attachments.vue";
@@ -26,8 +26,8 @@ const props = defineProps<{
   self: boolean;
   divider?: boolean;
   selected?: boolean;
-  handleSelectMessage: (messageId: number) => void;
-  handleDeselectMessage: (messageId: number) => void;
+  handleSelectMessage: (messageId: string) => void;
+  handleDeselectMessage: (messageId: string) => void;
 }>();
 
 const activeConversation = <IConversation>inject("activeConversation");
@@ -174,7 +174,7 @@ const replyMessage = getMessageById(activeConversation, props.message.replyTo);
         <!--date-->
         <div :class="props.self ? ['ml-4', 'order-1'] : ['mr-4']">
           <Typography variant="body-1" class="whitespace-pre">
-            {{ props.message.date }}
+            {{ timeAgo(props.message.date) }}
           </Typography>
         </div>
 
