@@ -6,7 +6,7 @@ import nlMessages from '@src/locales/nl.json';
 const localeMessages: LocaleMessages<any> = {
     en: enMessages,
     nl: nlMessages
-};
+}
 
 const i18n = createI18n({
     locale: "en",

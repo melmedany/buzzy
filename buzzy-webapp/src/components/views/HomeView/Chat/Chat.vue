@@ -72,10 +72,9 @@ const handleDeselectMessage = (messageId: string) => {
 // (event) select all messages.
 const handleSelectAll = () => {
   if (activeConversation.value) {
-    const messages = activeConversation.value.messages.map(
-      (message) => message.id
+    selectedMessages.value = activeConversation.value.messages.map(
+        (message) => message.id
     );
-    selectedMessages.value = messages;
     selectAll.value = true;
   }
 };
@@ -97,22 +96,17 @@ const handleCloseSelect = () => {
 <template>
   <Loading3 v-if="store.status === 'loading' || store.delayLoading" />
 
-  <div
-    v-else-if="getActiveConversationId() && activeConversation"
-    class="h-full flex flex-col scrollbar-hidden"
-  >
+  <div v-else-if="getActiveConversationId() && activeConversation" class="h-full flex flex-col scrollbar-hidden">
     <ChatTop
       :select-all="selectAll"
       :select-mode="selectMode"
       :handle-select-all="handleSelectAll"
       :handle-deselect-all="handleDeselectAll"
-      :handle-close-select="handleCloseSelect"
-    />
+      :handle-close-select="handleCloseSelect" />
     <ChatMiddle id="ChatMiddle"
       :selected-messages="selectedMessages"
       :handle-select-message="handleSelectMessage"
-      :handle-deselect-message="handleDeselectMessage"
-    />
+      :handle-deselect-message="handleDeselectMessage" />
     <ChatBottom />
   </div>
 

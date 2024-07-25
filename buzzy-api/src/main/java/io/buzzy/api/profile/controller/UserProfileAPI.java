@@ -24,7 +24,7 @@ public interface UserProfileAPI {
             parameters = {@Parameter(in = ParameterIn.HEADER, name = HttpHeaders.AUTHORIZATION, schema = @Schema(implementation = String.class)),
                     @Parameter(in = ParameterIn.HEADER, name = HttpHeaders.ACCEPT_LANGUAGE, schema = @Schema(implementation = String.class))},
             responses = {@ApiResponse(responseCode = "200", description = "Ok", content = {@Content(schema = @Schema(implementation = APIResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE)})})
-    @GetMapping(value = "/profile", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    @GetMapping(value = "/users/profiles", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
     ResponseEntity<APIResponse<UserProfileDTO>> getUserProfile();
 
     @Operation(method = "get", operationId = "searchUserProfiles", summary = "Search available user profiles by keyword",
@@ -32,14 +32,14 @@ public interface UserProfileAPI {
                     @Parameter(in = ParameterIn.HEADER, name = HttpHeaders.ACCEPT_LANGUAGE, schema = @Schema(implementation = String.class)),
                     @Parameter(in = ParameterIn.QUERY, name = "keyword", schema = @Schema(implementation = String.class))},
             responses = {@ApiResponse(responseCode = "200", description = "Ok", content = {@Content(schema = @Schema(implementation = APIResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE)})})
-    @GetMapping(value = "/profile/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    @GetMapping(value = "/users/profiles/search", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
     ResponseEntity<APIResponse<List<UserProfileDTO>>> searchUserProfiles(@RequestParam String keyword);
 
     @Operation(method = "put", operationId = "addConnection", summary = "Add new connection to loggedIn user profile",
             parameters = {@Parameter(in = ParameterIn.HEADER, name = HttpHeaders.AUTHORIZATION, schema = @Schema(implementation = String.class)),
                     @Parameter(in = ParameterIn.HEADER, name = HttpHeaders.ACCEPT_LANGUAGE, schema = @Schema(implementation = String.class))},
             responses = {@ApiResponse(responseCode = "201", description = "Created")})
-    @PutMapping(value = "/profile/connection/{userProfileId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    @PutMapping(value = "/users/profiles/connections/{userProfileId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
     ResponseEntity<APIResponse<Void>> addConnection(@PathVariable String userProfileId);
 
     @Operation(method = "put", operationId = "getPersonalProfile", summary = "Get loggedIn user profile",
@@ -47,7 +47,7 @@ public interface UserProfileAPI {
                     @Parameter(in = ParameterIn.HEADER, name = HttpHeaders.ACCEPT_LANGUAGE, schema = @Schema(implementation = String.class))},
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(schema = @Schema(implementation = SettingsDTO.class), mediaType = "application/json")),
             responses = {@ApiResponse(responseCode = "201", description = "Created")})
-    @PutMapping(value = "/profile/settings", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    @PutMapping(value = "/users/profiles/settings", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
     ResponseEntity<APIResponse<Void>> updateSettings(@RequestBody SettingsDTO registrationRequest);
 
 

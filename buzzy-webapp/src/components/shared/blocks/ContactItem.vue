@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import type { IContact, IUser } from "@src/types";
+import type {IContact} from "@src/types";
 
 import useStore from "@src/store/store";
-import { getFullName } from "@src/utils";
+import {getFullName, timeAgo} from "@src/utils";
 
 import Typography from "@src/components/ui/data-display/Typography.vue";
 
@@ -68,7 +68,7 @@ const store = useStore();
         </div>
 
         <!--contact last seen-->
-        <Typography variant="body-2"> Last seen 2:30 am </Typography>
+        <Typography variant="body-2"> {{ timeAgo(props.contact?.lastSeen) }} </Typography>
       </div>
 
       <div class="h-full flex flex-col justify-center items-center">

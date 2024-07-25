@@ -11,7 +11,7 @@ export const defaultSettings: ISettings = {
     allowNotifications: false,
     keepNotifications: false,
     preferredLanguage: navigator.language || 'en',
-};
+}
 
 export const conversations = [];
 
@@ -51,7 +51,7 @@ export const activeCall = {
     },
   ],
   adminIds: ["1"],
-};
+}
 
 export const updateAccount = async () => {
   await delay(4000);
@@ -60,8 +60,8 @@ export const updateAccount = async () => {
     data: {
       detail: "Your account has been updated successfully",
     },
-  };
-};
+  }
+}
 
 export const attachments = [
   {

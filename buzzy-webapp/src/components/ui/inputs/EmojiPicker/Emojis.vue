@@ -75,7 +75,7 @@ const filterEmojis = () => {
     }
   });
   return _emojiGroups;
-};
+}
 
 // (watcher) change the filtered emojis when the search keyword change
 watch(

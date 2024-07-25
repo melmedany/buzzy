@@ -8,14 +8,6 @@ const props = defineProps<{
 </script>
 
 <template>
-  <img
-    v-if="props.state === 'delivered'"
-    :src="GrayChecks"
-    class="w-[.875rem] h-[.875rem]"
-  />
-  <img
-    v-else-if="props.state === 'read'"
-    :src="GreenChecks"
-    class="w-[.875rem] h-[.875rem]"
-  />
+  <img v-if="props.state === 'delivered'" :src="GrayChecks" class="w-[.875rem] h-[.875rem]"  alt="delivered"/>
+  <img v-else-if="props.state === 'read'" :src="GreenChecks" class="w-[.875rem] h-[.875rem]"  alt="read"/>
 </template>

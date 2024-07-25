@@ -6,9 +6,13 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class ApiError {
     private String field;
     private String message;
-    private String code;
+    private ApiErrorCode code;
 
     public ApiError() {
+    }
+
+    public ApiError(ApiErrorCode code) {
+        this.code = code;
     }
 
     public ApiError(String field, String message) {
@@ -30,5 +34,13 @@ public class ApiError {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public ApiErrorCode getCode() {
+        return code;
+    }
+
+    public void setCode(ApiErrorCode code) {
+        this.code = code;
     }
 }

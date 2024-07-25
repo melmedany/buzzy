@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class SuccessfulRegistrationProducer extends BuzzyKafkaProducer<SuccessfulRegistrationDTO> {
 
-    public SuccessfulRegistrationProducer(@Value("${buzzy-sso.kafka.registration-topic}") String topic,
+    public SuccessfulRegistrationProducer(@Value("${buzzy-sso.kafka.successful-registration.topic}") String topic,
                                           KafkaTemplate<String, SuccessfulRegistrationDTO> producer) {
         super(topic, producer);
     }

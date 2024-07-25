@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed } from "vue";
-import { twMerge } from "tailwind-merge";
+import {computed} from "vue";
+import {twMerge} from "tailwind-merge";
 
 defineEmits(["valueChanged"]);
 
@@ -14,6 +14,8 @@ const props = defineProps<{
   variant?: string;
   class?: string;
   disabled?: boolean;
+  errorMessages?: string[];
+  handleBlur?: (event: any) => any;
 }>();
 
 const baseClasses = `max-w-full w-full h-8 p-4 rounded-sm content-center
@@ -49,13 +51,20 @@ const classes = twMerge(baseClasses, variantClasses.value, props.class);
     <div class="relative">
       <input
         @input="$emit('valueChanged', ($event.target as HTMLInputElement).value)"
+        @blur="props.handleBlur"
         :type="props.type || 'text'"
         :id="props.id"
         :value="props.value"
         :class="classes"
         :placeholder="props.placeholder"
-        :disabled="props.disabled"
-      />
+        :disabled="props.disabled" />
+
+        <div v-if="props.errorMessages && props.errorMessages?.length > 0" class="validation-container mb-6 flex flex-col">
+            <span v-for="(errorMessage) in props.errorMessages"
+                class="error-message outline-none text-sm text-black opacity-60 dark:text-white dark:opacity-70">
+              {{ errorMessage }}
+            </span>
+         </div>
 
       <div class="absolute top-0 right-0">
         <slot name="endAdornment"></slot>

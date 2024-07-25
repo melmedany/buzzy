@@ -43,16 +43,16 @@ public class WebSocketsConfiguration implements WebSocketMessageBrokerConfigurer
     }
 
     @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(authenticationInterceptor);
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry//.setApplicationDestinationPrefixes("/app")
+                .enableSimpleBroker("/users", "/conversations")
+                .setTaskScheduler(heartBeatScheduler())
+                .setHeartbeatValue(new long[]{60000L, 60000L});
     }
 
     @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/app")
-                .enableSimpleBroker("/user", "/conversation")
-                .setTaskScheduler(heartBeatScheduler())
-                .setHeartbeatValue(new long[]{60000L, 60000L});
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(authenticationInterceptor);
     }
 
     @Bean

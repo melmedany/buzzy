@@ -1,6 +1,7 @@
 package io.buzzy.api.conversation.controller;
 
 import io.buzzy.api.conversation.controller.model.ConversationDTO;
+import io.buzzy.api.conversation.controller.model.ConversationMessageDTO;
 import io.buzzy.api.conversation.controller.model.PostMessageRequest;
 import io.buzzy.api.conversation.service.ConversationMessageService;
 import io.buzzy.api.conversation.service.ConversationService;
@@ -56,6 +57,16 @@ public class ConversationController implements ConversationAPI{
 
         conversationMessageService.postMessage(username, conversationId, postMessageRequest);
         return new ResponseEntity<>(APIResponse.emptyResponse(), HttpStatus.CREATED);
+    }
+
+    @Override
+    public ResponseEntity<APIResponse<ConversationMessageDTO>> getConversationMessage(String messageId, String conversationId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        ConversationMessageDTO conversationMessageDTO = conversationMessageService.getConversationMessage(messageId, conversationId, username);
+
+        return new ResponseEntity<>(new APIResponse<>(conversationMessageDTO, null), HttpStatus.OK);
     }
 
 }

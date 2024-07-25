@@ -61,4 +61,32 @@
   input:disabled, input:is(.dark) {
     color: #6b7280 !important;
   }
+
+  .validation-container span.error-message {
+    display: block;
+    margin-left: 1em;
+  }
+
+  .validation-container span.error-message:only-child {
+    margin-left: 0;
+  }
+
+  .validation-container span.error-message::before {
+    content: "\2022 ";
+    position: absolute;
+    color: #000000;
+    margin-left: -1em;
+  }
+
+  .validation-container span.error-message:only-child::before {
+    content: "";
+  }
+
+  .validation-container span.error-message {
+    color: #d44950;
+  }
+
+  .dark .validation-container span.error-message::before  {
+    color: #FFFFFF !important;
+  }
 }

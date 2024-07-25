@@ -28,7 +28,7 @@ public class NewConnectionAddedListener {
     }
 
     @Transactional
-    @KafkaListener(topics = {"${buzzy-api.kafka.new-connection-topic}"},
+    @KafkaListener(topics = {"${buzzy-api.kafka.new-connection.topic}"},
             groupId = "${buzzy-api.kafka.new-connection.consumer.group-id}")
     public void newConnection(ConsumerRecord<String, NewConnectionDTO> message, Acknowledgment acknowledgment) {
         LOGGER.debug("Received message on topic: {} value: {}", message.topic(), JsonUtil.toJson(message.value()));

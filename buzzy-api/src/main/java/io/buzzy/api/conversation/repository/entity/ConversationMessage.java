@@ -2,6 +2,7 @@ package io.buzzy.api.conversation.repository.entity;
 
 import io.buzzy.api.conversation.model.ConversationMessageState;
 import io.buzzy.api.conversation.model.ConversationMessageType;
+import io.buzzy.api.profile.repository.entity.UserProfile;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -19,7 +20,6 @@ public class ConversationMessage {
     private ConversationMessageType type;
     @Enumerated(EnumType.STRING)
     private ConversationMessageState state;
-    private UUID sender;
     private String text;
     @CreationTimestamp
     private OffsetDateTime created;
@@ -29,6 +29,10 @@ public class ConversationMessage {
     @ManyToOne
     @JoinColumn(name = "conversation_id")
     private Conversation conversation;
+
+    @ManyToOne
+    @JoinColumn(name = "sender_id")
+    private UserProfile sender;
 
     public UUID getId() {
         return id;
@@ -54,11 +58,11 @@ public class ConversationMessage {
         this.state = state;
     }
 
-    public UUID getSender() {
+    public UserProfile getSender() {
         return sender;
     }
 
-    public void setSender(UUID sender) {
+    public void setSender(UserProfile sender) {
         this.sender = sender;
     }
 

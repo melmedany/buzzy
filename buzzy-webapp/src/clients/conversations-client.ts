@@ -1,63 +1,78 @@
 import GenericClient from "@src/clients/generic-client";
 import {APIResponse, IConversation} from "@src/types";
 
-const api_version = "/v1";
-const get_conversations_summary_endpoint = api_version + "/conversations/summary";
-const get_conversation_endpoint = api_version + "/conversations/";
-const post_message_endpoint = api_version + "/conversations/{conversationId}/messages";
-
 class ConversationsClient extends GenericClient {
 
-    async getConversationsSummary(accessToken: string, acceptLanguage: string): Promise<IConversation[] | null> {
+    public async getConversationsSummary(accessToken: string, acceptLanguage: string): Promise<any> {
         const headers = {
             "Authorization": "Bearer " + accessToken,
             "Accept-Language": acceptLanguage,
             "Content-Type": "application/json",
-        };
+        }
 
         try {
-            const response: APIResponse<IConversation[]> = await this.getData(get_conversations_summary_endpoint, headers, {});
+            const endpoint = import.meta.env.VITE_API_VERSION! + import.meta.env.VITE_CONVERSATIONS_SUMMARY_ENDPOINT!
+            const response: APIResponse<IConversation[]> = await this.getData(endpoint, headers, {});
             return response.data;
 
         } catch (error: any) {
             console.error('Error getting data:', error);
             return error?.response.data
         }
-    };
+    }
 
-    async getConversation(id: string, accessToken: string, acceptLanguage: string): Promise<IConversation | null> {
+    public async getConversation(id: string, accessToken: string, acceptLanguage: string): Promise<any> {
         const headers = {
             "Authorization": "Bearer " + accessToken,
             "Accept-Language": acceptLanguage,
             "Content-Type": "application/json",
-        };
+        }
 
         try {
-            const response: APIResponse<IConversation> = await this.getData(get_conversation_endpoint + id, headers, {});
+            const endpoint = import.meta.env.VITE_API_VERSION! + import.meta.env.VITE_CONVERSATIONS_ENDPOINT!  + id
+            const response: APIResponse<IConversation> = await this.getData(endpoint, headers, {});
             return response.data;
 
         } catch (error: any) {
             console.error('Error getting data:', error);
             return error?.response.data
         }
-    };
+    }
 
-    async postMessage(accessToken: string, acceptLanguage: string, conversationId:string, messageData: any) {
+    public async getConversationMessage(messageId: string,conversationId: string, accessToken: string, acceptLanguage: string): Promise<any> {
         const headers = {
             "Authorization": "Bearer " + accessToken,
             "Accept-Language": acceptLanguage,
             "Content-Type": "application/json",
-        };
+        }
 
         try {
-            const response: APIResponse<IConversation> = await this.postData(post_message_endpoint.replace("{conversationId}", conversationId), headers, {}, messageData);
+            const endpoint = import.meta.env.VITE_API_VERSION! + import.meta.env.VITE_CONVERSATION_MESSAGE_ENDPOINT!.replace("{conversationId}", conversationId).replace("{messageId}", messageId)
+            const response: APIResponse<IConversation> = await this.getData(endpoint, headers, {});
+            return response.data;
+
+        } catch (error: any) {
+            console.error('Error getting data:', error);
+            return error?.response.data
+        }
+    }
+
+    async postMessage(messageData: any, conversationId:string, accessToken: string, acceptLanguage: string) {
+        const headers = {
+            "Authorization": "Bearer " + accessToken,
+            "Accept-Language": acceptLanguage,
+            "Content-Type": "application/json",
+        }
+
+        const endpoint = import.meta.env.VITE_API_VERSION! + import.meta.env.VITE_POST_MESSAGE_ENDPOINT!.replace("{conversationId}", conversationId)
+        try {
+            const response: APIResponse<IConversation> = await this.postData(endpoint, headers, {}, messageData);
             return response.data;
         } catch (error: any) {
             console.error('Error getting data:', error);
             return error?.response.data
         }
-    };
+    }
 }
 
-const conversationsClient = new ConversationsClient('http://api.buzzy.io');
-export default conversationsClient;
+export default ConversationsClient;

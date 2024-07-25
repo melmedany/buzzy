@@ -5,8 +5,8 @@ import AccordionButton from "@src/components/ui/data-display/AccordionButton.vue
 import Collapse from "@src/components/ui/utils/Collapse.vue";
 import SettingsSwitch from "@src/components/views/HomeView/Sidebar/Settings/SettingsAccordion/SettingsSwitch.vue";
 import Typography from "@src/components/ui/data-display/Typography.vue";
-import userProfileClient from "@src/clients/user-profile-client";
 import {defaultSettings} from "@src/store/defaults";
+import userProfileService from "@src/services/user-profile-service";
 
 const props = defineProps<{
   collapsed: boolean;
@@ -18,11 +18,11 @@ const preferredLanguage = store.settings.preferredLanguage || defaultSettings.pr
 
 const allowNotifications = () => {
   store.settings.allowNotifications = !store.settings.allowNotifications
-  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+  userProfileService.updateUserProfileSettings()
 }
 const keepNotifications = () => {
   store.settings.keepNotifications = !store.settings.keepNotifications
-  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+  userProfileService.updateUserProfileSettings()
 }
 </script>
 

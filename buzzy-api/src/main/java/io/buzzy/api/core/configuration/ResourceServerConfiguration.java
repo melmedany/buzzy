@@ -50,7 +50,7 @@ public class ResourceServerConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorizeRequests -> authorizeRequests
                         .requestMatchers("/v1/**").hasAuthority("USER")
-                        .anyRequest().permitAll());
+                        .anyRequest().authenticated());
 
         http.oauth2ResourceServer(oauth2ResourceServer ->
                 oauth2ResourceServer.opaqueToken(opaqueTokenConfigurer ->

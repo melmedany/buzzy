@@ -19,14 +19,14 @@ const closeOnClick = (event: Event) => {
   if ((event.target as HTMLDivElement).id === "close-modal") {
     props.closeModal();
   }
-};
+}
 
 // (event) close modal when typing esc button
 const handleCloseOnEscape = (event: KeyboardEvent) => {
   if (["Escape", "Esc"].includes(event.key)) {
     props.closeModal();
   }
-};
+}
 
 // set the handleCloseOnEscape when mounting the component
 onMounted(() => {

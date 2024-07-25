@@ -1,5 +1,5 @@
 import useStore from "@src/store/store";
-import type {ICall, IContact, IConversation, IMessage, IRecording,} from "@src/types";
+import {ApiErrorCode, ICall, IContact, IConversation, IMessage, IRecording,} from "@src/types";
 import {useRoute} from "vue-router";
 import i18n from "@src/i18n";
 import moment from 'moment'
@@ -17,7 +17,7 @@ export const getFullName = (contact: IContact, hyphen?: boolean) => {
   } else {
     return contact.firstname + " " + contact.lastname;
   }
-};
+}
 
 /**
  * get the other contact that is not the authenticated user.
@@ -41,7 +41,7 @@ export const getOddContact = (conversation: IConversation) => {
   }
 
   return oddContact;
-};
+}
 
 /**
  * get avatar based on conversation type.
@@ -55,7 +55,7 @@ export const getAvatar = (conversation: IConversation) => {
     let oddContact = getOddContact(conversation);
     return oddContact?.avatar;
   }
-};
+}
 
 /**
  * get name based on conversation type.
@@ -75,7 +75,7 @@ export const getName = (conversation: IConversation, hyphen?: boolean) => {
       return getFullName(oddContact, hyphen);
     }
   }
-};
+}
 
 /**
  * trim a string when it reaches a certain length and adds three dots
@@ -105,7 +105,7 @@ export const shorten = (message: IMessage | string, maxLength: number = 23) => {
   }
 
   return "";
-};
+}
 
 /**
  * test if the message contains attachments
@@ -115,7 +115,7 @@ export const shorten = (message: IMessage | string, maxLength: number = 23) => {
 export const hasAttachments = (message: IMessage) => {
   let attachments = message?.attachments;
   return attachments && attachments.length > 0;
-};
+}
 
 /**
  * extract the id of the active conversaiton from the url
@@ -123,7 +123,7 @@ export const hasAttachments = (message: IMessage) => {
 export const getActiveConversationId = () => {
   const route = useRoute();
   return route.params.id ? route.params.id : undefined;
-};
+}
 
 /**
  * get index of the conversation inside the conversations array
@@ -143,7 +143,24 @@ export const getConversationIndex = (
   });
 
   return conversationIndex;
-};
+}
+
+export const getMessageIndex = (
+    messageId: string,
+    conversationId: string
+): number | undefined => {
+  let conversationIndex = getConversationIndex(conversationId);
+  let messageIndex;
+  const store = useStore();
+
+  store.conversations[conversationIndex!].messages.forEach((message, index) => {
+    if (message.id === messageId) {
+      messageIndex = index;
+    }
+  });
+
+  return messageIndex;
+}
 
 /**
  * takes a call object and returns all the members
@@ -164,7 +181,7 @@ export const getOtherMembers = (call: ICall) => {
   }
 
   return members;
-};
+}
 
 /**
  * takes a call object and returns a name for the call
@@ -194,7 +211,7 @@ export const getCallName = (
   } else {
     return shorten(callName, maxLength);
   }
-};
+}
 
 export const getMessageById = (
   conversation: IConversation,
@@ -203,7 +220,7 @@ export const getMessageById = (
   if (messageId) {
     return conversation.messages.find((message) => message.id === messageId);
   }
-};
+}
 
 /**
  * Convert unicode to native emoji
@@ -216,15 +233,14 @@ export const unicodeToEmoji = (unicode: string) => {
     .map((hex) => parseInt(hex, 16))
     .map((hex) => String.fromCodePoint(hex))
     .join("");
-};
-
+}
 
 export const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const setLocale = (locale: string) => {
   const t = i18n.global;
   t.locale.value = locale || t.locale.value;
-};
+}
 
 export const timeAgo = (date?: Date): string => {
   if (!date) return "unknown"
@@ -246,5 +262,20 @@ export const isSameDay = (now: Date, then: Date): boolean => {
   return now.getFullYear() === then.getFullYear() &&
       now.getMonth() === then.getMonth() &&
       now.getDate() === then.getDate();
+}
+
+export const textMessage = (content: string, sender: IContact): IMessage => {
+  return { id: "", content: content, date: new Date(), sender: sender, state: "sending", type: "text"};
+}
+
+export const ApiErrorMessageKeys: { [key in keyof typeof ApiErrorCode]: string } = {
+  UsernameNotFound: "errors.invalid.credentials",
+  UsernameOrPasswordIncorrect: "errors.invalid.credentials",
+  ProfileNotFound: "errors.no.matching.profile.credentials",
+  Unknown: "errors.global.error"
+}
+
+export const getApiErrorMessageKey = (code: any): string => {
+  return ApiErrorMessageKeys[code];
 }
 

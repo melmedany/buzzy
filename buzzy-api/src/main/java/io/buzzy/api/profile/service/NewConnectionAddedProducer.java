@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class NewConnectionAddedProducer extends BuzzyKafkaProducer<NewConnectionDTO> {
 
-    public NewConnectionAddedProducer(@Value("${buzzy-api.kafka.new-connection-topic}") String topic,
+    public NewConnectionAddedProducer(@Value("${buzzy-api.kafka.new-connection.topic}") String topic,
                                       KafkaTemplate<String, NewConnectionDTO> producer) {
         super(topic, producer);
     }

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { IContact, IUser } from "@src/types";
-import type { Ref } from "vue";
-import { ref } from "vue";
+import type {IContact} from "@src/types";
+import type {Ref} from "vue";
+import {ref} from "vue";
 
 import useStore from "@src/store/store";
 
@@ -33,7 +33,7 @@ const isContactSelected = (contact: IContact) => {
   } else {
     return false;
   }
-};
+}
 
 // (event) change the value of selected contacts
 const handleSelectedContactsChange = (contact: IContact) => {
@@ -84,10 +84,7 @@ const handleSelectedContactsChange = (contact: IContact) => {
           ref="contactContainer"
           class="max-h-[13.5rem] mb-5 overflow-y-scroll"
         >
-          <Loading1
-            v-if="store.status === 'loading' || store.delayLoading"
-            v-for="item in 3"
-          />
+          <Loading1 v-if="store.status === 'loading' || store.delayLoading" v-for="item in 3" />
 
           <ContactItem
             v-else-if="store.user"

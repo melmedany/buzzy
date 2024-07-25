@@ -1,6 +1,7 @@
 package io.buzzy.api.conversation.controller;
 
 import io.buzzy.api.conversation.controller.model.ConversationDTO;
+import io.buzzy.api.conversation.controller.model.ConversationMessageDTO;
 import io.buzzy.api.conversation.controller.model.PostMessageRequest;
 import io.buzzy.common.web.model.APIResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +32,6 @@ public interface ConversationAPI {
     @GetMapping(value = "/conversations/summary", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
     ResponseEntity<APIResponse<List<ConversationDTO>>> getConversationsSummary();
 
-
     @Operation(method = "get", operationId = "getConversation", summary = "Get conversation for authenticated user by id",
             parameters = {@Parameter(in = ParameterIn.HEADER, name = HttpHeaders.AUTHORIZATION, schema = @Schema(implementation = String.class)),
                     @Parameter(in = ParameterIn.HEADER, name = HttpHeaders.ACCEPT_LANGUAGE, schema = @Schema(implementation = String.class)),
@@ -48,4 +48,13 @@ public interface ConversationAPI {
             responses = {@ApiResponse(responseCode = "201", description = "Created")})
     @PostMapping(value = "/conversations/{conversationId}/messages", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
     ResponseEntity<APIResponse<ConversationDTO>> postMessage(@PathVariable String conversationId, @Valid @RequestBody PostMessageRequest postMessageRequest);
+
+    @Operation(method = "get", operationId = "getConversationMessage", summary = "Get conversation message for authenticated user by message and conversation IDs",
+            parameters = {@Parameter(in = ParameterIn.HEADER, name = HttpHeaders.AUTHORIZATION, schema = @Schema(implementation = String.class)),
+                    @Parameter(in = ParameterIn.HEADER, name = HttpHeaders.ACCEPT_LANGUAGE, schema = @Schema(implementation = String.class)),
+                    @Parameter(in = ParameterIn.PATH, name = "messageId", schema = @Schema(implementation = String.class)),
+                    @Parameter(in = ParameterIn.PATH, name = "conversationId", schema = @Schema(implementation = String.class))},
+            responses = {@ApiResponse(responseCode = "200", description = "Ok", content = {@Content(schema = @Schema(implementation = APIResponse.class), mediaType = MediaType.APPLICATION_JSON_VALUE)})})
+    @GetMapping(value = "/conversations/{conversationId}/messages/{messageId}", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    ResponseEntity<APIResponse<ConversationMessageDTO>> getConversationMessage(@PathVariable String messageId, @PathVariable String conversationId);
 }

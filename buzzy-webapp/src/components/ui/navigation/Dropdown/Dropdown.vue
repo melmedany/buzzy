@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onClickOutside } from "@vueuse/core";
-import { onMounted, onUnmounted, ref } from "vue";
+import {onMounted, onUnmounted, ref} from "vue";
 
 import ScaleTransition from "@src/components/ui/transitions/ScaleTransition.vue";
 
@@ -13,7 +12,7 @@ const props = defineProps<{
     right?: string;
     top?: string;
     bottom?: string;
-  };
+  }
   position: string[];
   closeDropdown: () => void;
 }>();

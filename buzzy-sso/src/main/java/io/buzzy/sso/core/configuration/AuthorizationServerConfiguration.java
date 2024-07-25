@@ -2,9 +2,11 @@ package io.buzzy.sso.core.configuration;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.buzzy.sso.authentication.provider.ApiAuthenticationProvider;
-import io.buzzy.sso.authentication.provider.ApiAuthenticationTokenMixin;
-import io.buzzy.sso.authentication.provider.ApiAuthenticationConverter;
+import io.buzzy.common.service.ResourceBundleMessagesService;
+import io.buzzy.sso.authentication.ApiAuthenticationConverter;
+import io.buzzy.sso.authentication.ApiAuthenticationFailureHandler;
+import io.buzzy.sso.authentication.ApiAuthenticationProvider;
+import io.buzzy.sso.authentication.ApiAuthenticationTokenMixin;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,6 +14,8 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,13 +31,12 @@ import org.springframework.security.oauth2.server.authorization.jackson2.OAuth2A
 import org.springframework.security.oauth2.server.authorization.settings.AuthorizationServerSettings;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 
 import java.util.List;
 
 @Configuration
 public class AuthorizationServerConfiguration {
-    private final String LOGIN_FORM_URL = "/login";
     private final String issuer;
 
 
@@ -43,25 +46,41 @@ public class AuthorizationServerConfiguration {
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain authorizationSecurityFilterChain(HttpSecurity http, ApiAuthenticationProvider apiAuthenticationProvider) throws Exception {
+    public SecurityFilterChain authorizationSecurityFilterChain(HttpSecurity http, ApiAuthenticationProvider apiAuthenticationProvider,
+    ApiAuthenticationFailureHandler apiAuthenticationFailureHandler) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .tokenEndpoint(tokenEndpoint -> tokenEndpoint
-                        .accessTokenRequestConverter(new ApiAuthenticationConverter())
+                        .accessTokenRequestConverter(apiAuthenticationConverter())
+                        .errorResponseHandler(apiAuthenticationFailureHandler)
                         .authenticationProvider(apiAuthenticationProvider));
 
-        http.exceptionHandling(exceptions ->
-                exceptions.authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint(LOGIN_FORM_URL)));
+        http.addFilterAfter(apiAuthenticationFailureHandler, ExceptionTranslationFilter.class);
 
         return http.build();
     }
 
     @Bean
+    public ApiAuthenticationConverter apiAuthenticationConverter() {
+        return new ApiAuthenticationConverter();
+    }
+
+    @Bean
+    public ApiAuthenticationFailureHandler apiAuthenticationFailureHandler(ResourceBundleMessagesService messageSource) {
+        return new ApiAuthenticationFailureHandler(messageSource);
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
     public ApiAuthenticationProvider apiAuthenticationProvider(UserDetailsService userDetailsService,
-                                                                         OAuth2TokenGenerator<?> jwtTokenCustomizer,
-                                                                         OAuth2AuthorizationService authorizationService,
-                                                                         PasswordEncoder passwordEncoder) {
+                                                               OAuth2TokenGenerator<?> jwtTokenCustomizer,
+                                                               OAuth2AuthorizationService authorizationService,
+                                                               PasswordEncoder passwordEncoder) {
         return new ApiAuthenticationProvider(authorizationService, jwtTokenCustomizer, userDetailsService, passwordEncoder);
     }
 

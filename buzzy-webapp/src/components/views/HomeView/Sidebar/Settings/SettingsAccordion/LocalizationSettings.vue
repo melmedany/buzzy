@@ -6,8 +6,8 @@ import Collapse from "@src/components/ui/utils/Collapse.vue";
 import Typography from "@src/components/ui/data-display/Typography.vue";
 import {useI18n} from "vue-i18n";
 import SettingsSelect from "@src/components/views/HomeView/Sidebar/Settings/SettingsAccordion/SettingsSelect.vue";
-import userProfileClient from "@src/clients/user-profile-client";
 import {defaultSettings} from "@src/store/defaults";
+import userProfileService from "@src/services/user-profile-service";
 
 const i18n = useI18n();
 
@@ -27,8 +27,7 @@ const handleLanguageChange = (value: string) => {
 
     if (confirmed) {
       store.settings.preferredLanguage = value;
-      userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
-          .then(() => location.reload());
+      userProfileService.updateUserProfileSettings().then(() => location.reload());
     }
   }
 }

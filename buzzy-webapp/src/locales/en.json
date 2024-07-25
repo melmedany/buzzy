@@ -7,6 +7,8 @@
   "login.password.placeholder": "Enter your password",
   "login.password.show.button.title": "toggle password visibility",
   "login.button.label": "Sign in",
+  "login.loading.button.label": "Signing in ... ",
+  "login.successful.toast.text": "Login success. Loading user profile ... ",
   "login.signup.message": "Don’t have an account ?",
   "login.signup.button.label": "Sign up",
 
@@ -30,12 +32,16 @@
   "signup.password.show.button.title": "toggle password visibility",
   "signup.confirm.password.label": "Confirm Password",
   "signup.confirm.password.placeholder": "Enter your password",
-  "signup.password.button.label": "Sign up",
+  "signup.submit.button.label": "Sign up",
+  "signup.loading.button.label": "Signing up ...",
   "signup.back.button.label": "Back",
+  "signup.successful.toast.text": "Signed up successfully. Redirecting to login page ...",
 
   "dropdown.profile.information.label": "Profile Information",
   "dropdown.password.change.label": "Password Change",
   "dropdown.logout.button.label": "Logout",
+
+  "logout.successful.toast.text": "Logout success. Redirecting to login page ... ",
 
   "navigation.logo.skip.to.main.label": "Skip to main content",
   "navigation.dark-mode.on.img.alt": "gray bird logo",
@@ -151,6 +157,20 @@
 
   "compose.modal.tabs.contact.title": "Contact",
   "compose.modal.tabs.group.title": "Group",
+
+  "button.processing": "Processing ...",
+
+  "validation.login.username": "Username must be between 3 and 50 characters",
+  "validation.login.password": "Password must be between 8 and 20 characters",
+  "validation.signup.username": "Username must be between 3 and 50 characters",
+  "validation.signup.firstname": "Firstname must be between 3 and 100 characters",
+  "validation.signup.lastname": "Lastname must be between 3 and 100 characters",
+  "validation.signup.password": "Password must be between 8 and 20 characters, including at least one lowercase letter, one uppercase letter, and one symbol",
+  "validation.signup.passwords.not.matching": "Passwords doesn't match",
+
+  "errors.invalid.credentials": "Incorrect username or password.",
+  "errors.no.matching.profile.credentials": "No profile found for given credentials.",
+  "errors.global.error": "An unexpected error occurred.",
 
   "languages.english": "English",
   "languages.dutch": "Dutch"

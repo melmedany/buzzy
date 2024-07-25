@@ -4,7 +4,7 @@ import {computed, ref} from "vue";
 
 import defaults from "@src/store/defaults";
 import type {ICall, IContactGroup, IConversation, IEmoji, INotification, ISettings, IUser,} from "@src/types";
-import {IToken} from "@src/types";
+import {ISession, IToken} from "@src/types";
 
 const useStore = defineStore("chat", () => {
   // local storage
@@ -17,6 +17,7 @@ const useStore = defineStore("chat", () => {
   // data refs
   const user: Ref<IUser | undefined> = ref(storage.user);
   const tokens: Ref<IToken | undefined> = ref(storage.tokens);
+  const sessions: Ref<ISession[]> = ref([]);
   const conversations: Ref<IConversation[]> = ref(storage.conversations);
   const notifications: Ref<INotification[]> = ref(defaults.notifications || []);
   const archivedConversations: Ref<IConversation[]> = ref(
@@ -63,7 +64,7 @@ const useStore = defineStore("chat", () => {
 
       // create an array that groups contact names based on the first letter;
       for (let groupName of groupNames) {
-        let group: IContactGroup = { letter: groupName, contacts: [] };
+        let group: IContactGroup = { letter: groupName, contacts: [] }
         for (let contact of sortedContacts) {
           if (contact.firstname[0].toUpperCase() === groupName) {
             group.contacts.push(contact);
@@ -85,7 +86,7 @@ const useStore = defineStore("chat", () => {
     conversations.value = [];
     notifications.value = [];
     archivedConversations.value = [];
-    // settings.value = {...defaults.defaultSettings};
+    // settings.value = {...defaults.defaultSettings}
     delayLoading.value = true
   }
 
@@ -97,6 +98,7 @@ const useStore = defineStore("chat", () => {
     // data refs
     user,
     tokens,
+    sessions,
     conversations,
     contactGroups,
     notifications,
@@ -115,7 +117,7 @@ const useStore = defineStore("chat", () => {
     openVoiceCall,
 
     $reset
-  };
+  }
 });
 
 export default useStore;

@@ -1,4 +1,4 @@
-package io.buzzy.sso.authentication.provider;
+package io.buzzy.sso.authentication;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;

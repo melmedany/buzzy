@@ -1,4 +1,4 @@
-package io.buzzy.websockets.server.messaging.service;
+package io.buzzy.websockets.server.core.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.core.OAuth2AuthenticatedPrincipal;

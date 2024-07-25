@@ -13,13 +13,13 @@ const skinToneColor: any = {
   "1f3fd": "bg-[#C88E62]",
   "1f3fc": "bg-[#FFDFBD]",
   neutral: "bg-[#FFD225]",
-};
+}
 
 // (event) change the skin tone of the emojis
 const handleChangeSkinTone = (tone: string) => {
   select.value = false;
   store.emojiSkinTone = tone;
-};
+}
 </script>
 
 <template>

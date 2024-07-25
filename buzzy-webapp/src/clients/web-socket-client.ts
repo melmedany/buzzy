@@ -1,10 +1,5 @@
 import {Client, IMessage} from "@stomp/stompjs";
 
-interface PublishParams {
-    destination: string;
-    body: any;
-}
-
 interface AwaitConnectConfig {
     retries?: number;
     current?: number;
@@ -27,8 +22,11 @@ class WebSocketClient {
             // debug: function (str) {
             //     console.log(str);
             // },
-            onConnect: () => {
-                console.log("connected!");
+            onConnect: (frame) => {
+                console.debug("connected! ", frame);
+            },
+            onDisconnect(frame) {
+                console.debug("disconnected! ", frame);
             },
             onStompError: function (frame) {
                 console.error('Broker reported error: ' + frame.headers['message']);
@@ -53,24 +51,22 @@ class WebSocketClient {
         return WebSocketClient._instance;
     }
 
-    public publish = ({ destination, body }: PublishParams): void => {
-        this._client.publish({
-            destination: destination,
-            body: JSON.stringify(body),
-        });
-    };
-
-    public deactivate = (): void => {
-        this._client.deactivate();
-    };
-
-    public subscribe = (topic: string, callback: (message: IMessage) => void): any => {
-        return this._client.subscribe(topic, (message: IMessage) => {
+    public subscribe(destination: string, callback: (message: IMessage) => void, headers?:  any) {
+        return this._client.subscribe(destination, (message: IMessage) => {
             callback(message);
-        });
-    };
+        }, headers);
+    }
 
-    public awaitConnect = async (awaitConnectConfig?: AwaitConnectConfig): Promise<void> => {
+    public unsubscribe(destination: string) {
+        return this._client.unsubscribe(destination);
+    }
+
+    public publish(destination: string, body: string) {
+        return this._client.publish({destination: destination, body: body});
+    }
+
+
+    public async awaitConnect(awaitConnectConfig?: AwaitConnectConfig): Promise<void> {
         const {retries = 3, current = 0, timeInterval = 3000} = awaitConnectConfig || {};
 
         return new Promise((resolve, reject) => {
@@ -78,9 +74,9 @@ class WebSocketClient {
                 if (this.connected) {
                     resolve();
                 } else {
-                    console.log("failed to connect! retrying");
+                    console.debug("failed to connect! retrying");
                     if (current >= retries) {
-                        console.log("failed to connect within the specified time interval");
+                        console.debug("failed to connect within the specified time interval");
                         reject(new Error("Failed to connect within the specified time interval"));
                     } else {
                         this.awaitConnect({ ...awaitConnectConfig, current: current + 1 }).then(resolve).catch(reject);
@@ -88,9 +84,9 @@ class WebSocketClient {
                 }
             }, timeInterval);
         });
-    };
+    }
 
-    public get connected(): boolean {
+    private get connected(): boolean {
         return this._client.connected;
     }
 }

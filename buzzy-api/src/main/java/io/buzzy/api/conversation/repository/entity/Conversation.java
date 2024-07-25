@@ -27,10 +27,11 @@ public class Conversation {
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "users_conversations",
             joinColumns = @JoinColumn(name = "conversation_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "userId", referencedColumnName = "id"))
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
     private List <UserProfile> participants;
 
     @OneToMany(mappedBy = "conversation", cascade = CascadeType.ALL)
+    @OrderBy("created asc")
     private Collection<ConversationMessage> messages;
 
     @OneToOne(mappedBy = "conversation", cascade = CascadeType.ALL)

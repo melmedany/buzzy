@@ -1,15 +1,16 @@
 <script setup lang="ts">
 import useStore from "@src/store/store";
 
-import {ArrowLeftOnRectangleIcon, ArrowPathIcon, InformationCircleIcon,} from "@heroicons/vue/24/outline";
+import {ArrowPathIcon, InformationCircleIcon,} from "@heroicons/vue/24/outline";
 import Dropdown from "@src/components/ui/navigation/Dropdown/Dropdown.vue";
 import DropdownLink from "@src/components/ui/navigation/Dropdown/DropdownLink.vue";
 import {RouterLink} from "vue-router";
 import router from "@src/router";
-import authServerClient from "@src/clients/auth-server-client";
-import {getAvatar, getName} from "@src/utils";
+import authenticationService from "@src/services/authentication-service";
 import defaultGroupAvatar from "@src/assets/vectors/avatar-group-default.png";
-import defaultUserAvatar from "@src/assets/vectors/avatar-user-default.png";
+import {POSITION, useToast} from "vue-toastification";
+import {useI18n} from "vue-i18n";
+import {getApiErrorMessageKey} from "@src/utils";
 
 const props = defineProps<{
   showDropdown: boolean;
@@ -19,6 +20,11 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
+const toast = useToast();
+const i18n = useI18n();
+
+const logoutErrorToastId = "logout-error-toast";
+const logoutSuccessToastId = "logout-success-toast";
 
 // (event) close dropdown menu when clicking outside
 const handleCloseOnClickOutside = (event: Event) => {
@@ -32,11 +38,49 @@ const handleCloseOnClickOutside = (event: Event) => {
 };
 
 const handleLogout = async () => {
-  authServerClient.logout(store.tokens!!.accessToken).then(() => {
+  const loggedOut = await authenticationService.logout();
+  if (loggedOut) {
     store.$reset();
-    router.push({path: "/access/sign-in/"})
-        .then(() => location.reload());
-  });
+    const successMessage = i18n.t("logout.successful.toast.text");
+    toast.dismiss(logoutErrorToastId);
+    toast.success(successMessage, {
+      id: logoutSuccessToastId,
+      position: POSITION.TOP_CENTER,
+      timeout: 2000,
+      closeOnClick: false,
+      pauseOnFocusLoss: false,
+      pauseOnHover: false,
+      draggable: false,
+      showCloseButtonOnHover: true,
+      hideProgressBar: false,
+      closeButton: false,
+      icon: "fa-duotone fa-solid fa-check fa-beat-fade",
+      onClose() {
+        router.push({path: "/access/sign-in/"}).then(() => location.reload());
+      },
+    });
+  } else {
+    if (typeof loggedOut === "string") {
+      const messageKey = getApiErrorMessageKey(loggedOut);
+      const errorMessage = i18n.t(messageKey);
+
+      toast.dismiss(logoutErrorToastId);
+      toast.error(errorMessage, {
+        id: logoutErrorToastId,
+        position: POSITION.TOP_CENTER,
+        timeout: false,
+        closeOnClick: false,
+        pauseOnFocusLoss: false,
+        pauseOnHover: false,
+        draggable: false,
+        showCloseButtonOnHover: true,
+        hideProgressBar: false,
+        closeButton: "button",
+        icon: "fa-duotone fa-solid fa-circle-xmark",
+      });
+      return;
+    }
+  }
 };
 </script>
 
@@ -54,10 +98,10 @@ const handleLogout = async () => {
       :aria-expanded="showDropdown"
       aria-controls="profile-menu"
       aria-label="toggle profile menu">
-      <div id="user-avatar" :style="{ backgroundImage: `url(${store.user?.avatar})` }"
-        class="w-7 h-7 rounded-full bg-cover bg-center" v-if="store.user?.avatar"></div>
-      <div id="user-avatar" :style="{ backgroundImage: `url(${defaultGroupAvatar})` }"
-        class="w-7 h-7 rounded-full bg-cover bg-center" v-else></div>
+      <span id="user-avatar" :style="{ backgroundImage: `url(${store.user?.avatar})` }"
+        class="w-7 h-7 rounded-full bg-cover bg-center" v-if="store.user?.avatar"></span>
+      <span id="user-avatar" :style="{ backgroundImage: `url(${defaultGroupAvatar})` }"
+        class="w-7 h-7 rounded-full bg-cover bg-center" v-else></span>
     </button>
 
     <!--dropdown menu-->
@@ -92,10 +136,10 @@ const handleLogout = async () => {
       <DropdownLink :label="$t('dropdown.logout.button.label')"
         :handle-click="props.handleCloseDropdown"
         @click="handleLogout" color="danger">
-        <RouterLink to="/access/sign-in/" class="w-full flex items-center justify-start">
-          <ArrowLeftOnRectangleIcon class="h-5 w-5 mr-3" />
+<!--        <RouterLink to="/access/sign-in/" class="w-full flex items-center justify-start">-->
+<!--          <ArrowLeftOnRectangleIcon class="h-5 w-5 mr-3" />-->
           {{ $t('dropdown.logout.button.label') }}
-        </RouterLink>
+<!--        </RouterLink>-->
       </DropdownLink>
     </Dropdown>
   </div>

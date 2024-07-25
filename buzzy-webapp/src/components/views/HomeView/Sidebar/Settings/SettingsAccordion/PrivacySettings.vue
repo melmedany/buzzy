@@ -5,8 +5,8 @@ import AccordionButton from "@src/components/ui/data-display/AccordionButton.vue
 import Typography from "@src/components/ui/data-display/Typography.vue";
 import Collapse from "@src/components/ui/utils/Collapse.vue";
 import SettingsSwitch from "@src/components/views/HomeView/Sidebar/Settings/SettingsAccordion/SettingsSwitch.vue";
-import userProfileClient from "@src/clients/user-profile-client";
 import {defaultSettings} from "@src/store/defaults";
+import userProfileService from "@src/services/user-profile-service";
 
 // Variables
 const props = defineProps<{
@@ -18,19 +18,19 @@ const store = useStore();
 const preferredLanguage = store.settings.preferredLanguage || defaultSettings.preferredLanguage
 const lastSeen = () => {
   store.settings.lastSeen = !store.settings.lastSeen
-  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+  userProfileService.updateUserProfileSettings()
 }
 const readReceipt = () => {
   store.settings.readReceipt = !store.settings.readReceipt
-  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+  userProfileService.updateUserProfileSettings()
 }
 const joiningGroups = () => {
   store.settings.joiningGroups = !store.settings.joiningGroups
-  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+  userProfileService.updateUserProfileSettings()
 }
 const privateMessages = () => {
   store.settings.privateMessages = !store.settings.privateMessages
-  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+  userProfileService.updateUserProfileSettings()
 }
 </script>
 

@@ -13,11 +13,13 @@ import java.util.List;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ConversationMapper {
 
+    @Mapping(target = "admins", ignore = true)
+    @Mapping(target = "avatar", ignore = true)
+    @Mapping(target = "name", ignore = true)
     ConversationDTO toDTO(Conversation conversation);
 
     @Mapping(source = "created", target = "date")
     ConversationMessageDTO toConversationMessageDTO(ConversationMessage message);
 
     List<ConversationDTO> toDTOList(List<Conversation> conversations);
-    Conversation toEntity(ConversationDTO conversation);
 }

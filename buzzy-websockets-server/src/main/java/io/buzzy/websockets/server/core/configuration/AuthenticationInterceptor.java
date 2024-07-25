@@ -1,6 +1,6 @@
 package io.buzzy.websockets.server.core.configuration;
 
-import io.buzzy.websockets.server.messaging.service.TokenValidationService;
+import io.buzzy.websockets.server.core.service.TokenValidationService;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;

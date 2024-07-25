@@ -36,7 +36,7 @@ const handleAutoResize = () => {
     textarea.value.style.height = "auto";
     textarea.value.style.height = textarea.value.scrollHeight + "px";
   }
-};
+}
 </script>
 
 <template>

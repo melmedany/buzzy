@@ -4,7 +4,7 @@ import io.buzzy.api.conversation.controller.model.ConversationMessageDTO;
 import io.buzzy.api.conversation.repository.entity.Conversation;
 import io.buzzy.api.conversation.repository.entity.ConversationMessage;
 import io.buzzy.api.profile.repository.entity.UserProfile;
-import io.buzzy.common.messaging.model.PostMessageUpdateDTO;
+import io.buzzy.common.messaging.model.ConversationMessageUpdateDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -16,28 +16,31 @@ public interface ConversationMessageMapper {
     @Mapping(target = "date", source = "created")
     ConversationMessageDTO toDTO(ConversationMessage conversationMessage);
 
-    ConversationMessage toEntity(ConversationMessageDTO conversationMessage);
-
-    default PostMessageUpdateDTO toPostMessageUpdateDTO(String senderUsername, Conversation conversation, ConversationMessage conversationMessage) {
-        PostMessageUpdateDTO postMessageUpdateDTO = new PostMessageUpdateDTO();
-        postMessageUpdateDTO.setConversationId(conversation.getId().toString());
+    default ConversationMessageUpdateDTO toConversationMessageUpdateDTO(Conversation conversation,
+                                                                        ConversationMessage conversationMessage,
+                                                                        boolean selfUpdate) {
+        ConversationMessageUpdateDTO conversationMessageUpdateDTO = new ConversationMessageUpdateDTO();
+        conversationMessageUpdateDTO.setConversationId(conversation.getId().toString());
 
         ConversationMessageDTO conversationMessageDTO = toDTO(conversationMessage);
-        postMessageUpdateDTO.setId(conversationMessageDTO.getId());
-        postMessageUpdateDTO.setSenderUsername(senderUsername);
-        postMessageUpdateDTO.setText(conversationMessageDTO.getText());
-        postMessageUpdateDTO.setState(conversationMessageDTO.getState().toString());
-        postMessageUpdateDTO.setType(conversationMessageDTO.getType());
-        postMessageUpdateDTO.setDate(conversationMessageDTO.getDate());
+        conversationMessageUpdateDTO.setMessageId(conversationMessageDTO.getId());
+        conversationMessageUpdateDTO.setState(conversationMessageDTO.getState().toString());
 
+        List<String> receivers;
 
-        List<String> receivers = conversation.getParticipants().stream()
-                .filter(profile -> !conversationMessage.getSender().equals(profile.getId()))
-                .map(UserProfile::getUsername)
-                .toList();
+        if (selfUpdate) {
+            receivers = conversation.getParticipants().stream()
+                    .map(UserProfile::getUsername)
+                    .toList();
+        } else {
+            receivers = conversation.getParticipants().stream()
+                    .filter(profile -> !conversationMessage.getSender().getId().equals(profile.getId()))
+                    .map(UserProfile::getUsername)
+                    .toList();
+        }
 
-        postMessageUpdateDTO.setReceiversUsernames(receivers);
+        conversationMessageUpdateDTO.setReceiversUsernames(receivers);
 
-        return postMessageUpdateDTO;
+        return conversationMessageUpdateDTO;
     }
 }

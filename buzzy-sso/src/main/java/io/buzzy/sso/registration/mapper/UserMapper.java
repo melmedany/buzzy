@@ -15,7 +15,12 @@ public interface UserMapper {
     @Mapping(source = "id", target = "userId")
     UserDTO toDTO(User user);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "created", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "roles", ignore = true)
+    @Mapping(target = "updated", ignore = true)
     User toUser(SignupRequest signupRequest);
 
     @Mapping(source = "id", target = "userId")

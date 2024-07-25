@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type {Ref} from "vue";
 import {inject, onMounted, ref} from "vue";
-import type {IConversation} from "@src/types";
-
+import {IConversation, MessageType, PostMessage} from "@src/types";
 import useStore from "@src/store/store";
-import {getConversationIndex} from "@src/utils";
+import {getConversationIndex, textMessage} from "@src/utils";
 
 import {
   CheckIcon,
@@ -22,11 +21,9 @@ import ScaleTransition from "@src/components/ui/transitions/ScaleTransition.vue"
 import ReplyMessage from "@src/components/views/HomeView/Chat/ChatBottom/ReplyMessage.vue";
 import EmojiPicker from "@src/components/ui/inputs/EmojiPicker/EmojiPicker.vue";
 import Textarea from "@src/components/ui/inputs/Textarea.vue";
-import conversationsClient from "@src/clients/conversations-client";
-import {defaultSettings} from "@src/store/defaults";
+import conversationsService from "@src/services/conversations-service";
 
 const store = useStore();
-const preferredLanguage = store.settings?.preferredLanguage || defaultSettings.preferredLanguage;
 
 const activeConversation = <IConversation>inject("activeConversation");
 
@@ -81,8 +78,10 @@ const handleSendMessage = async () => {
     const draftMessage = store.conversations[index].draftMessage
 
     if (draftMessage && draftMessage.trim()) {
-      const message = { type: "text", message: draftMessage };
-      await conversationsClient.postMessage(store.tokens!!.accessToken, preferredLanguage, activeConversation.id, message);
+      activeConversation.messages.push(textMessage(draftMessage, store.user!!));
+
+      const postMessage: PostMessage = { type: MessageType.text, message: draftMessage };
+      await conversationsService.postMessage(postMessage, activeConversation.id);
       await updateActiveConversation();
       store.conversations[index].draftMessage = value.value = '';
       handleSetDraft();
@@ -91,27 +90,16 @@ const handleSendMessage = async () => {
 }
 
 const updateActiveConversation = async () => {
-  if (store.tokens) {
-    const preferredLanguage = store.settings?.preferredLanguage || defaultSettings.preferredLanguage;
+  const conversation = await conversationsService.getConversation(activeConversation?.id);
 
-    const response = await conversationsClient.getConversation(activeConversation?.id, store.tokens.accessToken, preferredLanguage);
+  let index = getConversationIndex(activeConversation?.id)
 
-    if (response?.errors) {
-      // todo handel error
-      console.log(response?.errors);
-    } else {
-      let index = getConversationIndex(activeConversation?.id)
-
-      if (index !== undefined) {
-        store.conversations[index] = response?.data!!;
-        activeConversation.messages = response?.data!!.messages!!;
-      }
-    }
-  } else {
-    // todo // handel error
+  if (index !== undefined) {
+    store.conversations[index] = conversation!!;
+    activeConversation.messages = conversation!!.messages!!;
   }
-
 }
+
 onMounted(() => {
   value.value = activeConversation?.draftMessage;
 });

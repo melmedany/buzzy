@@ -7,20 +7,20 @@ import Typography from "@src/components/ui/data-display/Typography.vue";
 import PasswordSection from "@src/components/views/AccessView/RegisterForm/PasswordSection.vue";
 import PersonalSection from "@src/components/views/AccessView/RegisterForm/PersonalSection.vue";
 import router from "@src/router";
-import authServerClient from "@src/clients/auth-server-client";
-import useStore from "@src/store/store";
-import {defaultSettings} from "@src/store/defaults";
-import {SignupForm} from "@src/types";
+import {SignupForm, SignupFormValidation} from "@src/types";
+import {POSITION, useToast} from 'vue-toastification'
+import authenticationService from "@src/services/authentication-service";
+import {useI18n} from "vue-i18n";
 
 defineEmits(["activeSectionChange"]);
 
-// determines what form section to use.
+const toast = useToast();
+const i18n = useI18n();
+
 const activeSectionName = ref("personal-section");
 
-// determines what direction the slide animation should use.
 const animation = ref("slide-left");
 
-// get the active section component from the section name
 const ActiveSection = computed((): any => {
   if (activeSectionName.value === "personal-section") {
     return PersonalSection;
@@ -29,7 +29,6 @@ const ActiveSection = computed((): any => {
   }
 });
 
-// (event) to move between modal pages
 const changeActiveSection = (event: {
   sectionName: string;
   animationName: string;
@@ -38,28 +37,66 @@ const changeActiveSection = (event: {
   activeSectionName.value = event.sectionName;
 };
 
-const store = useStore();
-const preferredLanguage = store.settings.preferredLanguage || defaultSettings.preferredLanguage
-
 const signupForm: SignupForm = {
   username: "",
   firstname: "",
   lastname: "",
   password: "",
-  confirmPassword: ""
-}
+  confirmPassword: "",
+  $reset(): void {
+    this.username = "";
+    this.firstname = "";
+    this.lastname = "";
+    this.password = "";
+    this.confirmPassword = "";
+  }
+};
+
+const signupFormValidation = ref<SignupFormValidation>({
+  usernameErrorMessage: [],
+  firstnameErrorMessage: [],
+  lastnameErrorMessage: [],
+  passwordErrorMessage: [],
+  confirmPasswordErrorMessage: [],
+  $reset(): void {
+    this.usernameErrorMessage = [];
+    this.firstnameErrorMessage = [];
+    this.lastnameErrorMessage = [];
+    this.passwordErrorMessage = [];
+    this.confirmPasswordErrorMessage = [];
+  }
+});
+
+const signupFormSubmitted = ref(false);
 
 const handleSignUp = async () => {
-  authServerClient.signup(signupForm, preferredLanguage)
-      .then((response) => {
-        if (response?.errors) {
-          // todo handel error
-          console.log(response?.errors);
-        } else {
-          // todo // show signup success
-          router.push({path: "/access/sign-in/"})
-        }
-      });
+  signupFormSubmitted.value = true;
+
+  const signedUp = await authenticationService.signup(signupForm);
+
+  const successMessage = i18n.t('signup.successful.toast.text');
+
+  if (signedUp) {
+    signupFormSubmitted.value = false;
+    signupForm.$reset();
+    signupFormValidation.value.$reset()
+
+    toast.success(successMessage, {
+      position: POSITION.TOP_CENTER,
+      timeout: 2000,
+      closeOnClick: false,
+      pauseOnFocusLoss: false,
+      pauseOnHover: false,
+      draggable: false,
+      showCloseButtonOnHover: true,
+      hideProgressBar: false,
+      closeButton: false,
+      icon: "fa-duotone fa-solid fa-check",
+      onClose() {
+        router.push({path: "/access/sign-in/"});
+      },
+    });
+  }
 };
 </script>
 
@@ -70,7 +107,7 @@ const handleSignUp = async () => {
       <!--header-->
       <div class="mb-6 flex flex-col">
         <img src="@src/assets/vectors/logo-gradient.svg"
-             class="w-[1.375rem] h-[1.125rem] mb-5 opacity-70"/>
+             class="w-[1.375rem] h-[1.125rem] mb-5 opacity-70" alt="buzzy"/>
         <Typography variant="heading-2" class="mb-4">{{ $t("signup.opening.message") }}</Typography>
         <Typography variant="body-3" class="text-opacity-75 font-light">
           {{ $t("signup.login.message") }}
@@ -82,7 +119,9 @@ const handleSignUp = async () => {
         <component @active-section-change="changeActiveSection"
                    :is="ActiveSection"
                    :signup="signupForm"
-                   :handleSignUp="handleSignUp"/>
+                   :handleSignUp="handleSignUp"
+                   :signupFormSubmitted="signupFormSubmitted"
+                   :signupFormValidation="signupFormValidation"/>
       </SlideTransition>
 
       <!--bottom text-->

@@ -3,9 +3,9 @@ package io.buzzy.api.conversation.service;
 import io.buzzy.api.conversation.controller.model.ConversationDTO;
 import io.buzzy.api.conversation.mapper.ConversationMapper;
 import io.buzzy.api.conversation.model.ConversationType;
+import io.buzzy.api.conversation.repository.ConversationRepository;
 import io.buzzy.api.conversation.repository.entity.Conversation;
 import io.buzzy.api.conversation.repository.entity.ConversationConfiguration;
-import io.buzzy.api.conversation.repository.entity.ConversationRepository;
 import io.buzzy.api.conversation.service.exception.ConversationNotFoundException;
 import io.buzzy.api.profile.controller.model.UserProfileDTO;
 import io.buzzy.api.profile.repository.entity.UserProfile;
@@ -74,7 +74,6 @@ public class ConversationService {
 
     public void createConversation(UserProfile user, UserProfile connection) {
         ConversationConfiguration configuration = new ConversationConfiguration();
-//        configuration.setName(getFullName(connectionId));
 
         Conversation newConversation = new Conversation();
         newConversation.setType(ConversationType.direct_message);

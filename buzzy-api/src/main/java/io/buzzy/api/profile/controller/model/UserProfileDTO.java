@@ -19,6 +19,14 @@ public class UserProfileDTO {
     @JsonProperty("contacts")
     private List<UserConnectionDTO> connections;
 
+    public UserProfileDTO() {
+    }
+
+    public UserProfileDTO(UUID id, String username) {
+        this.id = id;
+        this.username = username;
+    }
+
     public UUID getId() {
         return id;
     }

@@ -6,6 +6,7 @@ import io.buzzy.api.profile.repository.entity.UserProfile;
 import io.buzzy.common.messaging.model.NewConnectionDTO;
 import io.buzzy.common.messaging.model.SuccessfulRegistrationDTO;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 
 import java.util.List;
@@ -13,6 +14,13 @@ import java.util.UUID;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface UserProfileMapper {
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "lastSeen", ignore = true)
+    @Mapping(target = "connections", ignore = true)
+    @Mapping(target = "settings", ignore = true)
+    @Mapping(target = "created", ignore = true)
+    @Mapping(target = "updated", ignore = true)
     UserProfile successfulRegistrationToUserProfile(SuccessfulRegistrationDTO successfulRegistrationDTO);
 
     UserProfileDTO toUserProfileDTO(UserProfile userProfile);

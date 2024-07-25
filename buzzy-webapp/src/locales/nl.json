@@ -7,6 +7,8 @@
   "login.password.placeholder": "Voer je wachtwoord in",
   "login.password.show.button.title": "schakel wachtwoord zichtbaarheid",
   "login.button.label": "Inloggen",
+  "login.loading.button.label": "Aan het inloggen ... ",
+  "login.successful.toast.text": "Inloggen gelukt. Gebruikersprofiel laden ...",
   "login.signup.message": "Nog geen account?",
   "login.signup.button.label": "Aanmelden",
 
@@ -30,8 +32,10 @@
   "signup.password.show.button.title": "schakel wachtwoord zichtbaarheid",
   "signup.confirm.password.label": "Bevestig wachtwoord",
   "signup.confirm.password.placeholder": "Voer je wachtwoord in",
-  "signup.password.button.label": "Aanmelden",
+  "signup.submit.button.label": "Aanmelden",
+  "signup.loading.button.label": "Aan het aanmelden ...",
   "signup.back.button.label": "Terug",
+  "signup.successful.toast.text": "Succesvol aangemeld. Omleiden naar inlogpagina ...",
 
   "dropdown.profile.information.label": "Profielinformatie",
   "dropdown.password.change.label": "Wachtwoord wijzigen",
@@ -151,6 +155,8 @@
 
   "compose.modal.tabs.contact.title": "Contact",
   "compose.modal.tabs.group.title": "Groep",
+
+  "button.processing": "Verwerken ...",
 
   "languages.english": "Engels",
   "languages.dutch": "Nederlands"

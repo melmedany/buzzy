@@ -9,6 +9,7 @@ import io.buzzy.api.profile.repository.entity.UserProfile;
 import io.buzzy.api.profile.repository.entity.UserProfileRepository;
 import io.buzzy.api.profile.service.exception.ConnectionAlreadyExistException;
 import io.buzzy.common.messaging.model.SuccessfulRegistrationDTO;
+import io.buzzy.common.messaging.model.UserStatusUpdateDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -41,6 +42,7 @@ public class UserProfileService {
         UserProfile userProfile = userProfileMapper.successfulRegistrationToUserProfile(successfulRegistrationDTO);
         userProfile.setActive(true);
         userProfile.setSettings(new Settings());
+        userProfile.setLastSeen(OffsetDateTime.now());
         userProfile.setCreated(OffsetDateTime.now());
         userProfile.setUpdated(OffsetDateTime.now());
         return userProfileRepository.saveAndFlush(userProfile);
@@ -76,6 +78,16 @@ public class UserProfileService {
         return userProfileMapper.toUserProfileDTO(userProfile);
     }
 
+    public UserProfile findByUserProfileUsername(String username) {
+        UserProfile userProfile = userProfileRepository.findByUsername(username).orElse(null);
+
+        if (userProfile == null) {
+            throw new UsernameNotFoundException("global.user.not.found");
+        }
+
+        return userProfile;
+    }
+
     public List<UserProfileDTO> searchUserProfiles(String keyword, String loggedInUsername) {
         return userProfileMapper.toUserProfileDTOList(userProfileRepository.searchUserProfiles(keyword, loggedInUsername));
     }
@@ -91,6 +103,10 @@ public class UserProfileService {
 
         if (connection == null) {
             throw new UsernameNotFoundException("global.user.not.found");
+        }
+
+        if (userProfile.getId() == connection.getId()) {
+            throw new IllegalArgumentException("global.user.cannot.self.connect");
         }
 
         boolean connectionExists = userProfile.getConnections().stream()
@@ -116,6 +132,17 @@ public class UserProfileService {
         }
 
         userProfile.setSettings(settingsMapper.toEntity(settingsDTO));
+        userProfileRepository.save(userProfile);
+    }
+
+    public void userStatusUpdate(UserStatusUpdateDTO userStatusUpdateDTO) {
+        UserProfile userProfile = userProfileRepository.findByUsername(userStatusUpdateDTO.getUsername()).orElse(null);
+
+        if (userProfile == null) {
+            throw new UsernameNotFoundException("global.user.not.found");
+        }
+
+        userProfile.setLastSeen(userStatusUpdateDTO.getLastSeen());
         userProfileRepository.save(userProfile);
     }
 }

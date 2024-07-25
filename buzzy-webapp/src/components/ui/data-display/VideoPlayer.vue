@@ -27,11 +27,11 @@ const handleTimeChange = (event: any) => {
       event.target.player.cache_.duration) *
       100
   );
-};
+}
 
 const handleTrackInput = (value: any, player: any, state: any) => {
   player.currentTime((value / 100) * state.duration);
-};
+}
 </script>
 
 <template>

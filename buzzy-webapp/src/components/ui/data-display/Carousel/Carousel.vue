@@ -74,7 +74,7 @@ const selectedAttachment = computed(() => {
 const handleCloseCarousel = () => {
   moved.value = false;
   props.closeCarousel();
-};
+}
 
 // check if there is a next attachment.
 const thereIsNext = () => {

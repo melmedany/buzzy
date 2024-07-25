@@ -4,55 +4,31 @@ import Navigation from "@src/components/views/HomeView/Navigation/Navigation.vue
 import Sidebar from "@src/components/views/HomeView/Sidebar/Sidebar.vue";
 import {getActiveConversationId, getConversationIndex} from "@src/utils";
 import {onMounted} from "vue";
-import {connectToSocketSever} from "@src/app";
 import useStore from "@src/store/store";
-import webSocketClient from "@src/clients/web-socket-client";
-import {defaultSettings} from "@src/store/defaults";
-import conversationsClient from "@src/clients/conversations-client";
+import webSocketService from "@src/services/web-socket-service";
+import conversationsService from "@src/services/conversations-service";
 
 const store = useStore();
-const socket = webSocketClient.getInstance();
-
-const userDestination = "/user/{username}/";
 
 const handleMessage = async (message: any) => {
+  console.debug("HomeView.handleMessage");
   const messageBody = JSON.parse(message.body);
   if (messageBody?.conversationId) {
 
     const index = getConversationIndex(messageBody?.conversationId);
 
-    if (store.tokens) {
-      const preferredLanguage = store.settings?.preferredLanguage || defaultSettings.preferredLanguage;
+    const conversation = await conversationsService.getConversation(messageBody?.conversationId);
 
-      const response = await conversationsClient.getConversation(messageBody?.conversationId, store.tokens.accessToken, preferredLanguage);
-
-      if (response?.errors) {
-        // todo handel error
-        console.log(response?.errors);
-      }
-
-      if (index !== undefined) {
-        store.conversations[index] = response?.data!!
-      } else {
-        store.conversations.push(response?.data!!)
-      }
-
-      console.log(response?.data!!);
-
+    if (index !== undefined) {
+      store.conversations[index] = conversation!!
     } else {
-      // todo // handel error
+      store.conversations.push(conversation!!)
     }
-
   }
 }
 
 onMounted(async () => {
-  if (store.tokens) {
-    const destination = userDestination.replace("{username}", store.user!!.username)
-    connectToSocketSever().then(() => {
-      socket.subscribe(destination, (message: any) => handleMessage(message));
-    })
-  }
+  await webSocketService.subscribeToUserUpdates((message: any) => handleMessage(message))
 });
 
 </script>

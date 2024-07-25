@@ -16,9 +16,8 @@ import FadeTransition from "@src/components/ui/transitions/FadeTransition.vue";
 import ArchivedButton from "@src/components/views/HomeView/Sidebar/Conversations/ArchivedButton.vue";
 import ConversationsList from "@src/components/views/HomeView/Sidebar/Conversations/ConversationsList.vue";
 import SidebarHeader from "@src/components/views/HomeView/Sidebar/SidebarHeader.vue";
-import {defaultSettings} from "@src/store/defaults";
-import conversationsClient from "@src/clients/conversations-client";
-import userProfileClient from "@src/clients/user-profile-client";
+import userProfileService from "@src/services/user-profile-service";
+import conversationsService from "@src/services/conversations-service";
 
 const store = useStore();
 
@@ -58,74 +57,42 @@ const closeComposeModal = () => {
   composeOpen.value = false;
 };
 
-// (event) close the compose modal.
 const searchKeywordChanged = async (keyword: string) => {
   if (keyword?.length >= 3) {
-    if (store.tokens) {
-      const preferredLanguage = store.settings?.preferredLanguage || defaultSettings.preferredLanguage;
-
-      const response = await userProfileClient.searchUserProfiles(keyword, store.tokens!!.accessToken, preferredLanguage);
-
-      if (response?.errors) {
-        // todo // handle error
-        console.log(response?.errors);
-      } else {
-        store.user!!.contacts = response?.data!!
-      }
-
-    } else {
-      // todo // handle error
-    }
+    await userProfileService.searchUserProfiles(keyword);
   }
 };
 
 const contactSelected = async (contact: IContact) => {
   if (contact) {
-    if (store.tokens) {
-      const preferredLanguage = store.settings?.preferredLanguage || defaultSettings.preferredLanguage;
+    const connectionAdded = await userProfileService.addConnection(contact.id);
 
-      const response = await userProfileClient.addConnection(contact.id, store.tokens!!.accessToken, preferredLanguage);
-
-      if (response?.errors) {
-        // todo // handle error
-        console.log(response?.errors);
-      } else {
-        await updateConversations();
-      }
-
-    } else {
-      // todo // handle error
+    if (connectionAdded) {
+      await updateConversations();
     }
   }
 };
 
 const updateConversations = async () => {
-  if (store.tokens) {
-    const preferredLanguage = store.settings?.preferredLanguage || defaultSettings.preferredLanguage;
-
-    const response = await conversationsClient.getConversationsSummary(store.tokens.accessToken, preferredLanguage);
-
-    if (response?.errors) {
-      // todo // handle error
-      console.log(response?.errors);
-    } else {
-      store.$patch({
-        conversations: response?.data || [],
-      });
-      filteredConversations.value = store.conversations;
-    }
-
-  } else {
-    // todo // handle error
-  }
+  await conversationsService.getConversationsSummary();
+  filteredConversations.value = sort(store.conversations);
 }
 
-// if the active conversation is in the archive
-// then open the archive
+const sort = (conversations: IConversation[]): IConversation[] => {
+  return conversations.sort((a, b) => {
+    const latestMessageDateA = a.messages.length > 0 ? new Date(Math.max(...a.messages.map(m => new Date(m.date).getTime()))) : new Date(0);
+
+    const latestMessageDateB = b.messages.length > 0 ? new Date(Math.max(...b.messages.map(m => new Date(m.date).getTime()))) : new Date(0);
+
+    return latestMessageDateB.getTime() - latestMessageDateA.getTime();
+  });
+}
+
 onMounted(async () => {
-  if (!store.conversations || !store.conversations.length) {
-    await updateConversations();
-  }
+  await updateConversations();
+  // if (!store.conversations || !store.conversations.length) {
+  //   await updateConversations();
+  // }
   store.$patch({
     status: "success",
     delayLoading: false

@@ -1,4 +1,4 @@
-package io.buzzy.websockets.server.messaging.model;
+package io.buzzy.websockets.server.messaging.model.web;
 
 import java.io.Serializable;
 

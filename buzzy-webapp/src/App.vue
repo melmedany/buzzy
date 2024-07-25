@@ -6,7 +6,6 @@ import moment from 'moment'
 
 import FadeTransition from "@src/components/ui/transitions/FadeTransition.vue";
 import {setLocale} from "@src/utils";
-import {connectToSocketSever} from "@src/app";
 
 const store = useStore();
 
@@ -23,9 +22,6 @@ onBeforeMount(async () => {
 // here we load the data from the server.
 onMounted(async () => {
   store.status = "loading";
-  if (store.tokens) {
-    connectToSocketSever();
-  }
 });
 
 // the app height
@@ -34,7 +30,7 @@ const height = ref(`${window.innerHeight}px`);
 // change the app height to the window hight.
 const resizeWindow = () => {
   height.value = `${window.innerHeight}px`;
-};
+}
 
 // and add the resize event when the component mounts.
 onMounted(() => {
@@ -51,8 +47,7 @@ onUnmounted(() => {
   <div :class="{ dark: store.settings.darkMode }">
     <div
       class="bg-white dark:bg-gray-800 transition-colors duration-500"
-      :style="{ height: height }"
-    >
+      :style="{ height: height }">
       <router-view v-slot="{ Component }">
         <FadeTransition>
           <component :is="Component" />

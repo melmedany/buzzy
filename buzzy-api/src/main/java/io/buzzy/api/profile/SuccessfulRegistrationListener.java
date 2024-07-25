@@ -28,8 +28,8 @@ public class SuccessfulRegistrationListener {
     }
 
     @Transactional
-    @KafkaListener(topics = {"${buzzy-api.kafka.registration-topic}"},
-            groupId = "${buzzy-api.kafka.registration.consumer.group-id}")
+    @KafkaListener(topics = {"${buzzy-api.kafka.successful-registration.topic}"},
+            groupId = "${buzzy-api.kafka.successful-registration.consumer.group-id}")
     public void successfulRegistration(ConsumerRecord<String, SuccessfulRegistrationDTO> message, Acknowledgment acknowledgment) {
         LOGGER.debug("Received message on topic: {} value: {}", message.topic(), JsonUtil.toJson(message.value()));
 

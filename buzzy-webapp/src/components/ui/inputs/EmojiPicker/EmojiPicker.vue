@@ -18,7 +18,7 @@ const keyword = ref("");
 // (event) changes the selected emoji  group
 const handleActiveTabChange = (tab: string) => {
   activeTab.value = tab;
-};
+}
 </script>
 
 <template>

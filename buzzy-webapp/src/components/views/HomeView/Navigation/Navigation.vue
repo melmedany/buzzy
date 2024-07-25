@@ -15,8 +15,8 @@ import {
 import AccountDropdown from "@src/components/views/HomeView/Navigation/AccountDropdown.vue";
 import Logo from "@src/components/views/HomeView/Navigation/Logo.vue";
 import NavLink from "@src/components/views/HomeView/Navigation/NavLink.vue";
-import userProfileClient from "@src/clients/user-profile-client";
 import {defaultSettings} from "@src/store/defaults";
+import userProfileService from "@src/services/user-profile-service";
 
 const store = useStore();
 const preferredLanguage = store.settings.preferredLanguage || defaultSettings.preferredLanguage
@@ -30,7 +30,7 @@ const handleActiveSidebarComponentChange = (value: string) => {
 
 const darkMode = () => {
   store.settings.darkMode = !store.settings.darkMode
-  userProfileClient.updateUserProfileSettings(store.tokens!!.accessToken, preferredLanguage, store.settings)
+  userProfileService.updateUserProfileSettings()
 }
 </script>
 

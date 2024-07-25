@@ -19,7 +19,7 @@ const props = defineProps<{
 const handleFileDrop = (event: any) => {
   active.value = false;
   emit("valueChanged", (event.dataTransfer as DataTransfer).files[0]);
-};
+}
 
 // (event) handle change when input files.
 const handleFileChange = (event: Event) => {
@@ -27,7 +27,7 @@ const handleFileChange = (event: Event) => {
     "valueChanged",
     ((event.target as HTMLInputElement).files as FileList)[0]
   );
-};
+}
 </script>
 
 <template>

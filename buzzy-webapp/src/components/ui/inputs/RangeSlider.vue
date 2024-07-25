@@ -34,7 +34,7 @@ const changeBarStyle = () => {
         }
       `;
   }
-};
+}
 
 onMounted(() => {
   document.head.appendChild(style);
@@ -61,9 +61,6 @@ watch(
     class="slider"
     :id="props.id"
     :value="value"
-    @input="$event => { 
-      changeBarStyle();
-      $emit('valueChange', ($event.target as HTMLInputElement).value);
-    }"
+    @input="$event => { changeBarStyle(); $emit('valueChange', ($event.target as HTMLInputElement).value);}"
   />
 </template>

@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import type {IConversation, IMessage, MessageBody, Messages} from "@src/types";
-import {inject, onBeforeMount, onMounted, Ref, ref} from "vue";
+import {IConversation, IMessage, MessageUpdate} from "@src/types";
+import {inject, onMounted, onUnmounted, Ref, ref, watch} from "vue";
 
 import useStore from "@src/store/store";
 
 import Message from "@src/components/views/HomeView/Chat/ChatMiddle/Message/Message.vue";
 import TimelineDivider from "@src/components/views/HomeView/Chat/ChatMiddle/TimelineDivider.vue";
-import {getConversationIndex, isSameDay} from "@src/utils";
-import webSocketClient from "@src/clients/web-socket-client";
-import {connectToSocketSever} from "@src/app";
-import {defaultSettings} from "@src/store/defaults";
-import conversationsClient from "@src/clients/conversations-client";
+import {getConversationIndex, getMessageIndex, isSameDay} from "@src/utils";
+import webSocketService from "@src/services/web-socket-service";
+import conversationsService from "@src/services/conversations-service";
 
 const props = defineProps<{
   handleSelectMessage: (messageId: string) => void;
@@ -19,11 +17,13 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
-const socket = webSocketClient.getInstance();
-
 const container: Ref<HTMLElement | null> = ref(null);
 
 const activeConversation = <IConversation>inject("activeConversation");
+
+watch([activeConversation.messages], () => {
+  scrollTop()
+});
 
 // checks whether the previous message was sent by the same user.
 const isFollowUp = (index: number, previousIndex: number): boolean => {
@@ -61,66 +61,84 @@ const timeDividerDate = (index: number): Date => {
   return nextMessage.date;
 };
 
-const conversationDestination = "/conversation/{conversationId}/user/{username}/";
+const messageReceived = async (messageEvent: any) => {
+  const messageUpdate: MessageUpdate = JSON.parse(messageEvent.body);
 
-if (store.tokens) {
-  const destination = conversationDestination.replace("{conversationId}", activeConversation.id).replace("{username}", store.user!!.username)
-  connectToSocketSever().then(() => {
-    socket.subscribe(destination, (message: any) => {
-          console.log(message)
-          // const messageBody: MessageBody = JSON.parse(message.body);
-          // updateMessages((prev: Messages) => {
-          //   const friendsMessages = prev[activeConversation.id] || [];
-          //   const newMessages = [...friendsMessages, messageBody];
-          //   const newObj = { ...prev, [activeConversation.id]: newMessages };
-          //   return newObj;
-          // });
-        }
-    );
-
-    const updateMessages = (messages: (prev: Messages) => { [p: string]: MessageBody[] }) => {
-      console.log(messages)
-    }
-  })
-}
-
-onBeforeMount(async () => {
-  const index = getConversationIndex(activeConversation.id);
-  if (index !== undefined) {
-
-    if (store.tokens) {
-      const preferredLanguage = store.settings?.preferredLanguage || defaultSettings.preferredLanguage;
-
-      const response = await conversationsClient.getConversation(activeConversation?.id, store.tokens.accessToken, preferredLanguage);
-
-      if (response?.errors) {
-        // todo handel error
-        console.log(response?.errors);
-      } else {
-        store.conversations[index] = response?.data!!
-        activeConversation.messages = response?.data!!.messages!!;
-      }
-
-    } else {
-      // todo // handel error
-    }
-
-  } else {
-    // todo // handle error
+  if (!messageUpdate || !messageUpdate.conversationId || !messageUpdate.conversationId) {
+    return;
   }
-})
 
-const updateActiveConversation = async () => {
+  const conversationIndex = getConversationIndex(messageUpdate.conversationId);
+  if (conversationIndex === undefined) {
+    return;
+  }
+
+  const message = await conversationsService.getConversationMessage(messageUpdate.messageId, messageUpdate.conversationId);
+
+  const messageIndex = getMessageIndex(messageUpdate.messageId, messageUpdate.conversationId);
+
+  if (messageIndex === undefined) {
+    // store.conversations[conversationIndex].messages.push(message!);
+    activeConversation.messages.push(message!);
+  } else {
+    store.conversations[conversationIndex].messages[messageIndex] = message!;
+    activeConversation.messages[messageIndex] = message!;
+  }
+
+  if (messageUpdate.state !== 'read') {
+    webSocketService.messageStateUpdate(messageUpdate.messageId, messageUpdate.conversationId);
+  }
+};
 
 
+const reloadActiveConversation = async () => {
+  const conversationIndex = getConversationIndex(activeConversation.id);
+  if (conversationIndex === undefined) {
+    console.log(`Conversation ${activeConversation.id} index not found.`);
+    return;
+  }
+
+  const conversation = await conversationsService.getConversation(activeConversation.id);
+
+  store.conversations[conversationIndex] = conversation!;
+  activeConversation.messages = conversation!.messages!;
 }
 
-// scroll messages to bottom.
+const scrollTop = () => {
+  (container.value as HTMLElement).scrollTop = (container.value as HTMLElement).scrollHeight;
+}
+
 onMounted(async () => {
-  (container.value as HTMLElement).scrollTop = (
-      container.value as HTMLElement
-  ).scrollHeight;
+  console.log("ChatMiddle.onMounted()");
+  await webSocketService.subscribeToConversation(activeConversation.id,
+      (message: any) => messageReceived(message).then(() => scrollTop()))
+  await reloadActiveConversation().then(() => scrollTop())
+      .then(() => {
+        let minDate: Date = activeConversation.messages[0].date;
+        let messageId = null;
+        let sender: string | undefined = store.user?.username
+
+        for (const conversationMessage of activeConversation.messages) {
+          const unreadMessage = conversationMessage.state !== 'read' &&
+              conversationMessage.sender.username === sender &&
+              conversationMessage.date < minDate;
+          if (unreadMessage) {
+              minDate = conversationMessage.date;
+              messageId = conversationMessage.id;
+          }
+        }
+
+        if (messageId !== null) {
+          webSocketService.bulkMessageStateUpdate(messageId, activeConversation.id);
+        }
+      });
 });
+
+onUnmounted(async () => {
+  console.log("ChatMiddle.onUnmounted");
+  await webSocketService.unSubscribeFromConversation(activeConversation.id)
+});
+
 </script>
 
 <template>

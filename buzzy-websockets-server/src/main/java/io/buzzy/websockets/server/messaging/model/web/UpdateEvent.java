@@ -1,7 +1,7 @@
-package io.buzzy.websockets.server.messaging.model;
+package io.buzzy.websockets.server.messaging.model.web;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.buzzy.common.messaging.model.PostMessageUpdateDTO;
+import io.buzzy.common.messaging.model.ConversationMessageUpdateDTO;
 
 import java.util.List;
 
@@ -33,8 +33,8 @@ public class UpdateEvent<T extends UpdateEventBody> {
         return new UserStatusUpdateBuilder();
     }
 
-    public static PostMessageMessageUpdateBuilder postMessageUpdate() {
-        return new PostMessageMessageUpdateBuilder();
+    public static ConversationMessageUpdateBuilder messageUpdate() {
+        return new ConversationMessageUpdateBuilder();
     }
 
     public static ConversationUpdateBuilder conversationUpdate() {
@@ -82,18 +82,14 @@ public class UpdateEvent<T extends UpdateEventBody> {
         }
     }
 
-    public static class PostMessageMessageUpdateBuilder extends Builder<PostMessageUpdate, PostMessageMessageUpdateBuilder> {
-        public PostMessageMessageUpdateBuilder() {
-            this.body = new PostMessageUpdate();
+    public static class ConversationMessageUpdateBuilder extends Builder<ConversationMessageUpdate, ConversationMessageUpdateBuilder> {
+        public ConversationMessageUpdateBuilder() {
+            this.body = new ConversationMessageUpdate();
         }
 
-        public PostMessageMessageUpdateBuilder postMessageUpdateDTO(PostMessageUpdateDTO dto) {
-            this.body.setMessageId(dto.getId());
+        public ConversationMessageUpdateBuilder conversationMessageUpdateDTO(ConversationMessageUpdateDTO dto) {
+            this.body.setMessageId(dto.getMessageId());
             this.body.setConversationId(dto.getConversationId());
-            this.body.setType(dto.getType());
-            this.body.setText(dto.getText());
-            this.body.setDate(dto.getDate());
-            this.body.setSenderUsername(dto.getSenderUsername());
             this.body.setState(dto.getState());
 
             this.receivers = dto.getReceiversUsernames();
@@ -103,12 +99,12 @@ public class UpdateEvent<T extends UpdateEventBody> {
 
 
         @Override
-        protected PostMessageMessageUpdateBuilder self() {
+        protected ConversationMessageUpdateBuilder self() {
             return this;
         }
 
-        public UpdateEvent<PostMessageUpdate> build() {
-            return super.build(UpdateEventType.post_message);
+        public UpdateEvent<ConversationMessageUpdate> build() {
+            return super.build(UpdateEventType.message_update);
         }
     }
 
@@ -121,7 +117,6 @@ public class UpdateEvent<T extends UpdateEventBody> {
             this.body.setConversationId(conversationId);
             return self();
         }
-
 
         @Override
         protected ConversationUpdateBuilder self() {
