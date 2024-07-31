@@ -269,9 +269,10 @@ export const textMessage = (content: string, sender: IContact): IMessage => {
 }
 
 export const ApiErrorMessageKeys: { [key in keyof typeof ApiErrorCode]: string } = {
+  ProfileNotFound: "errors.no.matching.profile.credentials",
+  UsernameAlreadyExists: "errors.username.already.exists",
   UsernameNotFound: "errors.invalid.credentials",
   UsernameOrPasswordIncorrect: "errors.invalid.credentials",
-  ProfileNotFound: "errors.no.matching.profile.credentials",
   Unknown: "errors.global.error"
 }
 

@@ -67,14 +67,12 @@ public class ConversationMessageServiceTest {
         conversation.setParticipants(List.of(userProfile));
 
         when(conversationRepository.findById(UUID.fromString(conversationId))).thenReturn(Optional.of(conversation));
-        when(userProfileService.findByUsername(username)).thenReturn(new UserProfileDTO(UUID.randomUUID(), username));
-        when(conversationMessageMapper.toConversationMessageUpdateDTO(eq(conversation), any(ConversationMessage.class), false))
+        when(conversationMessageMapper.toConversationMessageUpdateDTO(eq(conversation), any(ConversationMessage.class), eq(false)))
                 .thenReturn(new ConversationMessageUpdateDTO());
 
         conversationMessageService.postMessage(username, conversationId, postMessage);
 
         verify(conversationRepository).findById(UUID.fromString(conversationId));
-        verify(userProfileService).findByUsername(username);
         verify(conversationMessageRepository).save(any(ConversationMessage.class));
         verify(conversationRepository, times(1)).save(conversation);
         verify(conversationMessageUpdateProducer).send(any(ConversationMessageUpdateDTO.class));

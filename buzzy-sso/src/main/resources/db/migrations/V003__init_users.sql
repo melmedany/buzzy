@@ -15,8 +15,8 @@ CREATE TABLE IF NOT EXISTS users (
     id             UUID                                             PRIMARY KEY,
     username       VARCHAR(50)                                      UNIQUE NOT NULL,
     password       BYTEA                                            NOT NULL,
-    firstname       VARCHAR(100),
-    lastname        VARCHAR(100),
+    firstname      VARCHAR(100),
+    lastname       VARCHAR(100),
     active         BOOLEAN           DEFAULT TRUE                   NOT NULL ,
     created        TIMESTAMP                                        NOT NULL,
     updated        TIMESTAMP         DEFAULT CURRENT_TIMESTAMP      NOT NULL

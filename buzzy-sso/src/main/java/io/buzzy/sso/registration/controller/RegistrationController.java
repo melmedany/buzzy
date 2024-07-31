@@ -23,10 +23,9 @@ public class RegistrationController implements RegistrationAPI {
     }
 
     @Override
-    public ResponseEntity<APIResponse<UserDTO>> signup(SignupRequest signupRequest) {
+    public ResponseEntity<APIResponse<Void>> signup(SignupRequest signupRequest) {
         LOGGER.debug("Creating new user account");
-        UserDTO userDTO = registrationService.createUser(signupRequest);
-        return new ResponseEntity<>(new APIResponse<>(userDTO, null), HttpStatus.OK);
+        registrationService.createUser(signupRequest);
+        return new ResponseEntity<>(APIResponse.emptyResponse(), HttpStatus.CREATED);
     }
-
 }

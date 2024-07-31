@@ -4,25 +4,31 @@ import {AxiosResponse} from "axios";
 
 class AuthorizationClient extends GenericClient {
 
-    public async signup(signupForm: SignupForm, acceptLanguage: string): Promise<any> {
+    async signup(signupForm: SignupForm, accessToken: string, acceptLanguage: string): Promise<APIResponse<void>> {
         try {
             const headers = {
-                "Authorization": this.getBasicAuthHeader(), //"Basic YnV6enktd2ViYXBwOmJ1enp5LXdlYmFwcC1zZWNyZXQ=",
+                "Authorization": "Bearer " + accessToken,
                 "Accept-Language": acceptLanguage,
             }
 
             const endpoint = import.meta.env.VITE_API_VERSION! + import.meta.env.VITE_SIGNUP_ENDPOINT!
-            return await this.postData(endpoint, headers, {}, signupForm);
-        } catch (error) {
+            const response =  await this.postData<AxiosResponse>(endpoint, headers, {}, signupForm);
+            return response.data;
+        } catch (error: any) {
+            if (error?.code === 'ERR_NETWORK') {
+                console.warn('Network error!', error);
+                return error;
+            }
+
             console.error('Error posting data:', error);
-            return error
+            return error?.response.data
         }
     }
 
     async tokens(loginForm: LoginForm): Promise<APIResponse<void> | TokensResponse> {
         try {
             const headers = {
-                "Authorization": this.getBasicAuthHeader(), //"Basic YnV6enktd2ViYXBwOmJ1enp5LXdlYmFwcC1zZWNyZXQ=",
+                "Authorization": this.getBasicAuthHeader(),
                 "Content-Type": "application/x-www-form-urlencoded"
             }
             const body = {"username": loginForm.username, "password": loginForm.password, "grant_type": "grant_api"}
@@ -39,10 +45,30 @@ class AuthorizationClient extends GenericClient {
         }
     }
 
-    public async refreshTokens(refreshToken: string): Promise<any> {
+    async ccToken(): Promise<APIResponse<void> | TokensResponse> {
         try {
             const headers = {
-                "Authorization": this.getBasicAuthHeader(), //"Basic YnV6enktd2ViYXBwOmJ1enp5LXdlYmFwcC1zZWNyZXQ=",
+                "Authorization": this.getBasicAuthHeader(),
+                "Content-Type": "application/x-www-form-urlencoded"
+            }
+            const body = {"grant_type": "client_credentials"}
+            const response = await this.postData<AxiosResponse<TokensResponse>>(import.meta.env.VITE_TOKENS_ENDPOINT!, headers, {}, body);
+            return response.data;
+        } catch (error: any) {
+            if (error?.code === 'ERR_NETWORK') {
+                console.warn('Network error!', error);
+                return error;
+            }
+
+            console.error('Error posting data:', error);
+            return error?.response.data
+        }
+    }
+
+    async refreshTokens(refreshToken: string): Promise<any> {
+        try {
+            const headers = {
+                "Authorization": this.getBasicAuthHeader(),
                 "Content-Type": "application/x-www-form-urlencoded"
             }
 
@@ -57,10 +83,10 @@ class AuthorizationClient extends GenericClient {
         }
     }
 
-    public async logout(accessToken: string): Promise<any> {
+    async logout(accessToken: string): Promise<any> {
         try {
             const headers = {
-                "Authorization": this.getBasicAuthHeader(), //"Basic YnV6enktd2ViYXBwOmJ1enp5LXdlYmFwcC1zZWNyZXQ=",
+                "Authorization": this.getBasicAuthHeader(),
                 "Content-Type": 'application/x-www-form-urlencoded'
             }
             await this.postData(import.meta.env.VITE_TOKENS_REVOKE_ENDPOINT!, headers, {}, {token: accessToken});

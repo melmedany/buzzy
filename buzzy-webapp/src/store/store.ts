@@ -17,6 +17,7 @@ const useStore = defineStore("chat", () => {
   // data refs
   const user: Ref<IUser | undefined> = ref(storage.user);
   const tokens: Ref<IToken | undefined> = ref(storage.tokens);
+  const ccToken: Ref<IToken | undefined> = ref(storage.ccToken);
   const sessions: Ref<ISession[]> = ref([]);
   const conversations: Ref<IConversation[]> = ref(storage.conversations);
   const notifications: Ref<INotification[]> = ref(defaults.notifications || []);
@@ -98,6 +99,7 @@ const useStore = defineStore("chat", () => {
     // data refs
     user,
     tokens,
+    ccToken,
     sessions,
     conversations,
     contactGroups,

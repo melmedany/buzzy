@@ -1,6 +1,6 @@
 export interface IToken {
     accessToken: string,
-    refreshToken: string,
+    refreshToken?: string,
     expiresAt: Date;
 }
 
@@ -186,9 +186,10 @@ export interface ApiError {
 }
 
 export enum ApiErrorCode {
+    ProfileNotFound,
+    UsernameAlreadyExists,
     UsernameNotFound,
     UsernameOrPasswordIncorrect,
-    ProfileNotFound,
     Unknown
 }
 

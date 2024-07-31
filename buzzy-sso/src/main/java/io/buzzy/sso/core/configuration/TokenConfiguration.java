@@ -7,9 +7,11 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.OAuth2Token;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.token.*;
 import org.springframework.util.StringUtils;
 
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.buzzy.common.security.Constants.CLAIMS_AUTHORITIES_KEY;
@@ -30,25 +32,46 @@ public class TokenConfiguration {
     @Bean
     public OAuth2TokenCustomizer<OAuth2TokenClaimsContext> accessTokenCustomizer() {
         return context -> {
-            UserDetails userDetails;
+            UserDetails userDetails = extractUserDetails(context.getPrincipal());
+            validateUsername(userDetails);
 
-            if (context.getPrincipal() instanceof OAuth2ClientAuthenticationToken) {
-                userDetails = (UserDetails) context.getPrincipal().getDetails();
-            } else if (context.getPrincipal() instanceof AbstractAuthenticationToken) {
-                userDetails = (UserDetails) context.getPrincipal().getPrincipal();
-            } else {
-                throw new IllegalStateException("Unexpected token type");
-            }
-
-            if (!StringUtils.hasText(userDetails.getUsername())) {
-                throw new IllegalStateException("Bad UserDetails, username is empty");
-            }
-
-            context.getClaims().claim(CLAIMS_AUTHORITIES_KEY,
-                            userDetails.getAuthorities().stream()
-                                    .map(GrantedAuthority::getAuthority)
-                                    .collect(Collectors.toSet()))
+            context.getClaims()
+                    .claim(CLAIMS_AUTHORITIES_KEY, getAuthorities(userDetails))
                     .claim(CLAIMS_USERNAME_KEY, userDetails.getUsername());
         };
+    }
+
+    private UserDetails extractUserDetails(Object principal) {
+        if (principal instanceof OAuth2ClientAuthenticationToken token) {
+            return token.getDetails() instanceof UserDetails userDetails ? userDetails : registeredClientDetails(token);
+        } else if (principal instanceof AbstractAuthenticationToken token) {
+            return (UserDetails) token.getPrincipal();
+        } else {
+            throw new IllegalStateException("Unsupported principal type: " + principal.getClass().getName());
+        }
+    }
+
+    private void validateUsername(UserDetails userDetails) {
+        if (!StringUtils.hasText(userDetails.getUsername())) {
+            throw new IllegalStateException("Invalid UserDetails: username is empty");
+        }
+    }
+
+    private Set<String> getAuthorities(UserDetails userDetails) {
+        return userDetails.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toSet());
+    }
+
+    private UserDetails registeredClientDetails(OAuth2ClientAuthenticationToken token) {
+        if (token.getPrincipal() instanceof String && token.isAuthenticated()) {
+            RegisteredClient registeredClient = token.getRegisteredClient();
+            return org.springframework.security.core.userdetails.User.builder()
+                    .username(registeredClient.getClientId())
+                    .password(registeredClient.getClientSecret())
+                    .authorities(registeredClient.getScopes().toArray(String[]::new))
+                    .build();
+        }
+        return null;
     }
 }

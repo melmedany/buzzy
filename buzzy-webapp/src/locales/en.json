@@ -169,6 +169,7 @@
   "validation.signup.passwords.not.matching": "Passwords doesn't match",
 
   "errors.invalid.credentials": "Incorrect username or password.",
+  "errors.username.already.exists": "Username already exists.",
   "errors.no.matching.profile.credentials": "No profile found for given credentials.",
   "errors.global.error": "An unexpected error occurred.",
 

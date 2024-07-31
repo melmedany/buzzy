@@ -24,8 +24,8 @@ public interface RegistrationAPI {
             parameters = {@Parameter(in = ParameterIn.HEADER, name = HttpHeaders.ACCEPT_LANGUAGE, schema = @Schema(implementation = String.class))},
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(schema = @Schema(implementation = SignupRequest.class), mediaType = "application/json")),
             responses = {@ApiResponse(responseCode = "200", description = "Ok", content = {@Content(schema = @Schema(implementation = UserDTO.class), mediaType = MediaType.APPLICATION_JSON_VALUE)})})
-    @PostMapping(value = "signup", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
-    ResponseEntity<APIResponse<UserDTO>> signup(@Valid @RequestBody SignupRequest registrationRequest);
+    @PostMapping(value = "/signup", produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
+    ResponseEntity<APIResponse<Void>> signup(@Valid @RequestBody SignupRequest registrationRequest);
 
 
 

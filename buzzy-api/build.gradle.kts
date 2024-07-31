@@ -10,7 +10,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:+")
     implementation("org.apache.commons:commons-text:+")
 
-    implementation("io.jsonwebtoken:jjwt:+")
     implementation("org.springframework.boot:spring-boot-starter-security:+")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server:+")
 

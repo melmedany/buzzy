@@ -51,7 +51,7 @@ public class ConversationController implements ConversationAPI{
     }
 
     @Override
-    public ResponseEntity<APIResponse<ConversationDTO>> postMessage(String conversationId, PostMessageRequest postMessageRequest) {
+    public ResponseEntity<APIResponse<Void>> postMessage(String conversationId, PostMessageRequest postMessageRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 

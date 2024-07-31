@@ -98,10 +98,10 @@ const handleLogout = async () => {
       :aria-expanded="showDropdown"
       aria-controls="profile-menu"
       aria-label="toggle profile menu">
-      <span id="user-avatar" :style="{ backgroundImage: `url(${store.user?.avatar})` }"
-        class="w-7 h-7 rounded-full bg-cover bg-center" v-if="store.user?.avatar"></span>
-      <span id="user-avatar" :style="{ backgroundImage: `url(${defaultGroupAvatar})` }"
-        class="w-7 h-7 rounded-full bg-cover bg-center" v-else></span>
+      <div id="user-avatar" :style="{ backgroundImage: `url(${store.user?.avatar})` }"
+        class="w-7 h-7 rounded-full bg-cover bg-center" v-if="store.user?.avatar"></div>
+      <div id="user-avatar" :style="{ backgroundImage: `url(${defaultGroupAvatar})` }"
+        class="w-7 h-7 rounded-full bg-cover bg-center" v-else></div>
     </button>
 
     <!--dropdown menu-->

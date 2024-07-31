@@ -17,7 +17,6 @@ dependencies {
 
     implementation(project(":buzzy-common"))
     implementation("org.mapstruct:mapstruct:+")
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:+")
     annotationProcessor("org.mapstruct:mapstruct-processor:+")

@@ -16,13 +16,14 @@ import org.springframework.security.oauth2.server.resource.introspection.OpaqueT
 import org.springframework.stereotype.Component;
 
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE + 99)
+@Order(Ordered.HIGHEST_PRECEDENCE)
 public class AuthenticationInterceptor implements ChannelInterceptor {
 
     private final TokenValidationService tokenValidationService;
     private final OpaqueTokenAuthenticationConverter opaqueTokenAuthenticationConverter;
 
-    public AuthenticationInterceptor(TokenValidationService tokenValidationService, OpaqueTokenAuthenticationConverter opaqueTokenAuthenticationConverter) {
+    public AuthenticationInterceptor(TokenValidationService tokenValidationService,
+                                     OpaqueTokenAuthenticationConverter opaqueTokenAuthenticationConverter) {
         this.tokenValidationService = tokenValidationService;
         this.opaqueTokenAuthenticationConverter = opaqueTokenAuthenticationConverter;
     }
@@ -38,7 +39,8 @@ public class AuthenticationInterceptor implements ChannelInterceptor {
                 token = token.substring(7);
                 OAuth2AuthenticatedPrincipal principal = tokenValidationService.validateToken(token);
                 if (principal != null) {
-                    BearerTokenAuthentication authentication = (BearerTokenAuthentication) opaqueTokenAuthenticationConverter.convert(token, principal);
+                    BearerTokenAuthentication authentication =
+                            (BearerTokenAuthentication) opaqueTokenAuthenticationConverter.convert(token, principal);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     accessor.setUser(authentication);
                 }

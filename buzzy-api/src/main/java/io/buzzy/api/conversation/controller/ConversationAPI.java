@@ -47,7 +47,7 @@ public interface ConversationAPI {
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(content = @Content(schema = @Schema(implementation = PostMessageRequest.class), mediaType = "application/json")),
             responses = {@ApiResponse(responseCode = "201", description = "Created")})
     @PostMapping(value = "/conversations/{conversationId}/messages", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.TEXT_PLAIN_VALUE})
-    ResponseEntity<APIResponse<ConversationDTO>> postMessage(@PathVariable String conversationId, @Valid @RequestBody PostMessageRequest postMessageRequest);
+    ResponseEntity<APIResponse<Void>> postMessage(@PathVariable String conversationId, @Valid @RequestBody PostMessageRequest postMessageRequest);
 
     @Operation(method = "get", operationId = "getConversationMessage", summary = "Get conversation message for authenticated user by message and conversation IDs",
             parameters = {@Parameter(in = ParameterIn.HEADER, name = HttpHeaders.AUTHORIZATION, schema = @Schema(implementation = String.class)),

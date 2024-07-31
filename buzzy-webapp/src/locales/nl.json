@@ -158,6 +158,8 @@
 
   "button.processing": "Verwerken ...",
 
+  "errors.username.already.exists": "Gebruikersnaam bestaat al.",
+
   "languages.english": "Engels",
   "languages.dutch": "Nederlands"
 }

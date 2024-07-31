@@ -11,7 +11,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.buzzy.sso.authentication.ApiAuthenticationToken.GRANT_API;
@@ -28,9 +31,9 @@ public class ApiAuthenticationConverter implements AuthenticationConverter {
 
         MultiValueMap<String, String> parameters = requestParameters(request);
 
-        validateSingleValueParameter(parameters, OAuth2ParameterNames.SCOPE, false);
-        validateSingleValueParameter(parameters, OAuth2ParameterNames.USERNAME, true);
-        validateSingleValueParameter(parameters, OAuth2ParameterNames.PASSWORD, true);
+        validateParameter(parameters, OAuth2ParameterNames.SCOPE, 1, false);
+        validateParameter(parameters, OAuth2ParameterNames.USERNAME, 1, true);
+        validateParameter(parameters, OAuth2ParameterNames.PASSWORD, 1, true);
 
         Set<String> requestedScopes = StringUtils.hasText(parameters.getFirst(OAuth2ParameterNames.SCOPE)) ?
                 new HashSet<>(List.of(StringUtils.delimitedListToStringArray(parameters.getFirst(OAuth2ParameterNames.SCOPE), " "))) : null;
@@ -54,10 +57,10 @@ public class ApiAuthenticationConverter implements AuthenticationConverter {
         return parameters;
     }
 
-    private void validateSingleValueParameter(MultiValueMap<String, String> parameters, String paramName, boolean required) {
-        if (required && (!StringUtils.hasText(parameters.getFirst(paramName)) || parameters.get(paramName).size() != 1)) {
+    private void validateParameter(MultiValueMap<String, String> parameters, String paramName, int valueSize, boolean required) {
+        if (required && (!StringUtils.hasText(parameters.getFirst(paramName)) || parameters.get(paramName).size() != valueSize)) {
             throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST); // TODO // detailed message
-        } else if (StringUtils.hasText(parameters.getFirst(paramName)) && parameters.get(paramName).size() != 1) {
+        } else if (StringUtils.hasText(parameters.getFirst(paramName)) && parameters.get(paramName).size() != valueSize) {
             throw new OAuth2AuthenticationException(OAuth2ErrorCodes.INVALID_REQUEST); // TODO // detailed message
         }
     }

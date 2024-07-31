@@ -3,10 +3,7 @@ package io.buzzy.sso.core.configuration;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.buzzy.common.service.ResourceBundleMessagesService;
-import io.buzzy.sso.authentication.ApiAuthenticationConverter;
-import io.buzzy.sso.authentication.ApiAuthenticationFailureHandler;
-import io.buzzy.sso.authentication.ApiAuthenticationProvider;
-import io.buzzy.sso.authentication.ApiAuthenticationTokenMixin;
+import io.buzzy.sso.authentication.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,8 +11,7 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,6 +28,8 @@ import org.springframework.security.oauth2.server.authorization.settings.Authori
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.ExceptionTranslationFilter;
+import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 
 import java.util.List;
 
@@ -46,51 +44,46 @@ public class AuthorizationServerConfiguration {
 
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
-    public SecurityFilterChain authorizationSecurityFilterChain(HttpSecurity http, ApiAuthenticationProvider apiAuthenticationProvider,
-    ApiAuthenticationFailureHandler apiAuthenticationFailureHandler) throws Exception {
+    public SecurityFilterChain authorizationSecurityFilterChain(HttpSecurity http, AuthenticationProvider apiAuthenticationProvider,
+                                                                ApiAuthenticationExceptionFilter apiAuthenticationExceptionFilter) throws Exception {
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
 
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .tokenEndpoint(tokenEndpoint -> tokenEndpoint
+                        .authenticationProvider(apiAuthenticationProvider)
                         .accessTokenRequestConverter(apiAuthenticationConverter())
-                        .errorResponseHandler(apiAuthenticationFailureHandler)
-                        .authenticationProvider(apiAuthenticationProvider));
+                        .errorResponseHandler(apiAuthenticationFailureHandler()));
 
-        http.addFilterAfter(apiAuthenticationFailureHandler, ExceptionTranslationFilter.class);
+        http.addFilterAfter(apiAuthenticationExceptionFilter, ExceptionTranslationFilter.class);
 
         return http.build();
     }
 
     @Bean
-    public ApiAuthenticationConverter apiAuthenticationConverter() {
+    public AuthenticationProvider apiAuthenticationProvider(UserDetailsService userDetailsService,
+                                                            OAuth2TokenGenerator<?> tokenCustomizer,
+                                                            OAuth2AuthorizationService authorizationService,
+                                                            PasswordEncoder passwordEncoder) {
+        return new ApiAuthenticationProvider(authorizationService, tokenCustomizer, userDetailsService, passwordEncoder);
+    }
+
+    @Bean
+    public AuthenticationConverter apiAuthenticationConverter() {
         return new ApiAuthenticationConverter();
     }
 
     @Bean
-    public ApiAuthenticationFailureHandler apiAuthenticationFailureHandler(ResourceBundleMessagesService messageSource) {
-        return new ApiAuthenticationFailureHandler(messageSource);
+    public AuthenticationFailureHandler apiAuthenticationFailureHandler() {
+        return new ApiAuthenticationFailureHandler();
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public ApiAuthenticationExceptionFilter apiAuthenticationFilter(ResourceBundleMessagesService messageSource) {
+        return new ApiAuthenticationExceptionFilter(messageSource);
     }
 
     @Bean
-    public ApiAuthenticationProvider apiAuthenticationProvider(UserDetailsService userDetailsService,
-                                                               OAuth2TokenGenerator<?> jwtTokenCustomizer,
-                                                               OAuth2AuthorizationService authorizationService,
-                                                               PasswordEncoder passwordEncoder) {
-        return new ApiAuthenticationProvider(authorizationService, jwtTokenCustomizer, userDetailsService, passwordEncoder);
-    }
-
-    @Bean
-    public JdbcRegisteredClientRepository registeredClientRepository(JdbcTemplate jdbcTemplate) {
-        return new JdbcRegisteredClientRepository(jdbcTemplate);
-    }
-
-    @Bean
-    public JdbcOAuth2AuthorizationService authorizationService(JdbcOperations jdbcOperations, RegisteredClientRepository registeredClientRepository) {
+    public OAuth2AuthorizationService authorizationService(JdbcOperations jdbcOperations, RegisteredClientRepository registeredClientRepository) {
         JdbcOAuth2AuthorizationService authorizationService = new JdbcOAuth2AuthorizationService(jdbcOperations, registeredClientRepository);
 
         JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper rowMapper = new JdbcOAuth2AuthorizationService.OAuth2AuthorizationRowMapper(registeredClientRepository);
@@ -108,6 +101,11 @@ public class AuthorizationServerConfiguration {
         parametersMapper.setObjectMapper(objectMapper);
         authorizationService.setAuthorizationRowMapper(rowMapper);
         return authorizationService;
+    }
+
+    @Bean
+    public RegisteredClientRepository jdbcRegisteredClientRepository(JdbcTemplate jdbcTemplate) {
+        return new JdbcRegisteredClientRepository(jdbcTemplate);
     }
 
     @Bean

@@ -26,14 +26,7 @@ import java.util.HashMap;
 public abstract class ApiAuthenticationTokenMixin {
 }
 
-
 class ApiAuthenticationTokenDeserializer extends JsonDeserializer<OAuth2ClientAuthenticationToken> {
-
-    String PRINCIPAL_KEY = "principal";
-    String CLIENT_AUTHENTICATION_METHOD_KEY = "clientAuthenticationMethod";
-    String CLIENT_AUTHENTICATION_METHOD_VALUE_KEY = "value";
-    String CREDENTIALS_KEY = "credentials";
-    String DETAILS_KEY = "details";
 
     @Override
     public OAuth2ClientAuthenticationToken deserialize(JsonParser parser, DeserializationContext context) throws IOException {
@@ -41,10 +34,15 @@ class ApiAuthenticationTokenDeserializer extends JsonDeserializer<OAuth2ClientAu
         JsonNode root = mapper.readTree(parser);
 
 
+        String PRINCIPAL_KEY = "principal";
+        String CLIENT_AUTHENTICATION_METHOD_KEY = "clientAuthenticationMethod";
+        String CLIENT_AUTHENTICATION_METHOD_VALUE_KEY = "value";
+        String CREDENTIALS_KEY = "credentials";
         OAuth2ClientAuthenticationToken token = new OAuth2ClientAuthenticationToken(root.get(PRINCIPAL_KEY).asText(),
                 new ClientAuthenticationMethod(root.get(CLIENT_AUTHENTICATION_METHOD_KEY)
                         .get(CLIENT_AUTHENTICATION_METHOD_VALUE_KEY).asText()),
                 root.get(CREDENTIALS_KEY).asText(), new HashMap<>());
+        String DETAILS_KEY = "details";
         token.setDetails(mapper.convertValue(root.get(DETAILS_KEY), User.class));
 
         return token;

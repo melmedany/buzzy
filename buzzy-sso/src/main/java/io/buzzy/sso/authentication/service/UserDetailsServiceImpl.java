@@ -31,19 +31,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         Optional<User> dbUser = userRepository.findByUsernameIgnoreCaseAndActive(username, true);
 
         return dbUser.map(u -> org.springframework.security.core.userdetails.User.builder()
-                .username(u.getUsername())
-                .password(new String(u.getPassword()))
-                .authorities(getAuthorities(u.getRoles()))
-                .build()).orElseThrow(() -> new UsernameNotFoundException("global.user.not.found"));
+                        .username(u.getUsername())
+                        .password(new String(u.getPassword()))
+                        .authorities(getAuthorities(u.getRoles()))
+                        .build())
+                .orElseThrow(() -> new UsernameNotFoundException("global.user.not.found"));
     }
-
 
     private String[] getAuthorities(Collection<Role> roles) {
         return Stream.concat(roles.stream().map(Role::getName),
                 roles.stream().map(Role::getPrivileges)
                         .flatMap(Collection::stream)
                         .map(Privilege::getName))
-//                .map(roleName -> "ROLE_" + roleName)
                 .toArray(String[]::new);
     }
 }

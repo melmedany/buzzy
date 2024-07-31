@@ -6,7 +6,6 @@ import io.buzzy.sso.core.repository.UserRepository;
 import io.buzzy.sso.core.repository.entity.Role;
 import io.buzzy.sso.core.repository.entity.User;
 import io.buzzy.sso.registration.controller.model.SignupRequest;
-import io.buzzy.sso.registration.controller.model.UserDTO;
 import io.buzzy.sso.registration.mapper.UserMapper;
 import io.buzzy.sso.registration.service.exception.UsernameAlreadyExistsException;
 import org.slf4j.Logger;
@@ -38,7 +37,7 @@ public class RegistrationService {
         this.userMapper = userMapper;
     }
 
-    public UserDTO createUser(SignupRequest signupRequest) {
+    public void createUser(SignupRequest signupRequest) {
         if (usernameExists(signupRequest.getUsername())) {
             throw new UsernameAlreadyExistsException("validation.username.already.exists");
         }
@@ -48,11 +47,11 @@ public class RegistrationService {
         user.setActive(true);
         applyDefaultRoles(user);
 
-        userRepository.save(user);
+        user = userRepository.save(user);
 
-        successfulRegistrationProducer.send(userMapper.toSuccessfulRegistrationDTO(user));
-
-        return userMapper.toDTO(user);
+        if (user.getId() != null) {
+            successfulRegistrationProducer.send(userMapper.toSuccessfulRegistrationDTO(user));
+        }
     }
 
     private boolean usernameExists(String username) {

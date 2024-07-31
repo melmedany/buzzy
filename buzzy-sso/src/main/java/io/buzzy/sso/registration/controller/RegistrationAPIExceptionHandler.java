@@ -4,6 +4,7 @@ import io.buzzy.common.service.ResourceBundleMessagesService;
 import io.buzzy.common.util.LocaleUtil;
 import io.buzzy.common.web.model.APIResponse;
 import io.buzzy.common.web.model.ApiError;
+import io.buzzy.common.web.model.ApiErrorCode;
 import io.buzzy.sso.registration.service.exception.UsernameAlreadyExistsException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -35,8 +36,12 @@ public class RegistrationAPIExceptionHandler {
     @ExceptionHandler({UsernameAlreadyExistsException.class})
     public ResponseEntity<APIResponse<Void>> handleException(RuntimeException e, HttpServletRequest request) {
         LOGGER.error("{}: ", e.getClass().getSimpleName());
+
         String errorMessage = messageSource.getMessage(e.getMessage(), LocaleUtil.getRequestLocale(request));
-        return new ResponseEntity<>(new APIResponse<>(null, List.of(new ApiError(null, errorMessage))), HttpStatus.BAD_REQUEST);
+        ApiError error = new ApiError(null, errorMessage);
+        error.setCode(ApiErrorCode.UsernameAlreadyExists);
+
+        return new ResponseEntity<>(new APIResponse<>(null, List.of(error)), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

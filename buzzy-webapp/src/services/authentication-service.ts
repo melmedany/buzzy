@@ -11,21 +11,32 @@ class AuthenticationService extends GenericService {
     private authServerClient = new AuthorizationClient(import.meta.env.VITE_SSO_SERVER_URL!);
 
     public async signup(signupForm: SignupForm) {
-        const response = await this.authServerClient.signup(signupForm, this.getPreferredLanguage());
 
-        if (response.errors) {
-            // todo handel error
-            return false
-        } else {
+        const ccToken: IToken | null = await this.getCCToken();
+
+        if (ccToken) {
+            const response = await this.authServerClient.signup(signupForm, ccToken.accessToken, this.getPreferredLanguage());
+
+            if ('errors' in response && response.errors !== null) {
+                return response.errors[0].code;
+            }
+
+            if (response instanceof AxiosError) {
+                // todo handel error
+                return false
+            }
+
             return true
         }
+        // todo handel error
+        return false
+
     }
 
     public async login(loginForm: LoginForm): Promise<boolean | ApiErrorCode | undefined> {
         const response = await this.authServerClient.tokens(loginForm);
 
         if ('errors' in response && response.errors !== null) {
-            // todo handel error
             return response.errors[0].code;
         }
 
@@ -40,11 +51,23 @@ class AuthenticationService extends GenericService {
     }
 
     public async logout(): Promise<boolean | ApiErrorCode | undefined> {
-        const response = await this.authServerClient.logout(this.getTokens().accessToken);
+        const tokens = this.getTokens()
+        let accessTokenResponse,  refreshTokenResponse
 
-        if (response && 'errors' in response && response.errors !== null) {
+        if (tokens.accessToken) {
+            accessTokenResponse = await this.authServerClient.logout(this.getTokens().accessToken);
+        }
+
+        if (tokens.refreshToken) {
+            refreshTokenResponse = await this.authServerClient.logout(this.getTokens().refreshToken!!);
+        }
+
+        if (accessTokenResponse && 'errors' in accessTokenResponse && accessTokenResponse.errors !== null) {
             // todo handel error
-            return response.errors[0].code;
+            return accessTokenResponse.errors[0].code;
+        } else if (refreshTokenResponse && 'errors' in refreshTokenResponse && refreshTokenResponse.errors !== null) {
+            // todo handel error
+            return refreshTokenResponse.errors[0].code;
         }
 
         return true;
@@ -63,6 +86,23 @@ class AuthenticationService extends GenericService {
                 return null
             }
         }
+    }
+
+    private async getCCToken(): Promise<IToken> {
+        const ccToken = useStore().ccToken;
+
+        if (!ccToken) {
+            return this.handleNoCCToken()
+        }
+
+        const accessTokenExists = !!ccToken.accessToken.trim();
+        const tokenExpired = isBefore(ccToken.expiresAt, new Date());
+
+        if (!accessTokenExists || tokenExpired) {
+            return this.handleNoCCToken()
+        }
+
+        return ccToken as IToken;
     }
 
     private getTokens(): IToken {
@@ -89,13 +129,13 @@ class AuthenticationService extends GenericService {
             throw new TokensNotFoundError("Tokens not found.");
         }
 
-        const refreshTokenExists = !!tokens.refreshToken.trim();
+        const refreshTokenExists = !!tokens.refreshToken!!.trim();
 
         if (!refreshTokenExists) {
             throw new TokenExpiredError("Refresh token expired or invalid, user must be login again.");
         }
 
-        const response = await this.authServerClient.refreshTokens(tokens.refreshToken);
+        const response = await this.authServerClient.refreshTokens(tokens.refreshToken!!);
 
         if (response?.error) {
             console.debug(`error refresh token: ${response.error}`);
@@ -132,10 +172,25 @@ class AuthenticationService extends GenericService {
             if (error instanceof TokensNotFoundError) {
                 return this.handleTokensNotFoundError(error);
             } else {
-                console.error('Error get or refresh tokens: ', error);
+                console.error('Error refreshing refresh tokens: ', error);
                 return null;
             }
         }
+    }
+
+    private async handleNoCCToken(): Promise<IToken> {
+        const response = await this.authServerClient.ccToken();
+
+        if ('errors' in response && response.errors !== null) {
+            console.debug(`error get cc token: ${response.errors}`);
+        } else if ('access_token' in response) {
+            useStore().ccToken = {
+                accessToken: response?.access_token,
+                expiresAt: addSeconds(new Date(), response.expires_in)
+            }
+        }
+
+        return useStore().ccToken!!
     }
 }
 

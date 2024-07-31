@@ -11,11 +11,15 @@ import {SignupForm, SignupFormValidation} from "@src/types";
 import {POSITION, useToast} from 'vue-toastification'
 import authenticationService from "@src/services/authentication-service";
 import {useI18n} from "vue-i18n";
+import {getApiErrorMessageKey} from "@src/utils";
 
 defineEmits(["activeSectionChange"]);
 
 const toast = useToast();
 const i18n = useI18n();
+
+const signUpErrorToastId = "signup-error-toast";
+const signUpSuccessToastId = "signup-success-toast";
 
 const activeSectionName = ref("personal-section");
 
@@ -72,16 +76,17 @@ const signupFormSubmitted = ref(false);
 const handleSignUp = async () => {
   signupFormSubmitted.value = true;
 
-  const signedUp = await authenticationService.signup(signupForm);
+  const signedUpResponse = await authenticationService.signup(signupForm);
 
   const successMessage = i18n.t('signup.successful.toast.text');
 
-  if (signedUp) {
+  if (typeof signedUpResponse === "boolean" && signedUpResponse) {
     signupFormSubmitted.value = false;
     signupForm.$reset();
     signupFormValidation.value.$reset()
 
     toast.success(successMessage, {
+      id: signUpSuccessToastId,
       position: POSITION.TOP_CENTER,
       timeout: 2000,
       closeOnClick: false,
@@ -96,8 +101,42 @@ const handleSignUp = async () => {
         router.push({path: "/access/sign-in/"});
       },
     });
+    return;
   }
-};
+
+  handleErrorResponse(signedUpResponse);
+
+}
+
+const handleErrorResponse = (errorResponse: any) => {
+  let messageKey
+  if (typeof errorResponse === "string") {
+    messageKey = getApiErrorMessageKey(errorResponse);
+
+  } else {
+    messageKey = 'errors.global.error';
+  }
+
+  const errorMessage = i18n.t(messageKey);
+
+  signupFormSubmitted.value = false;
+
+  toast.dismiss(signUpErrorToastId);
+  toast.error(errorMessage, {
+    id: signUpErrorToastId,
+    position: POSITION.TOP_CENTER,
+    timeout: false,
+    closeOnClick: false,
+    pauseOnFocusLoss: false,
+    pauseOnHover: false,
+    draggable: false,
+    showCloseButtonOnHover: true,
+    hideProgressBar: false,
+    closeButton: "button",
+    icon: "fa-duotone fa-solid fa-circle-xmark",
+  });
+  return;
+}
 </script>
 
 <template>
