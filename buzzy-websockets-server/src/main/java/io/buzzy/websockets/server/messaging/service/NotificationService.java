@@ -83,7 +83,7 @@ public class NotificationService {
         UserActivity userActivity = userActivityRepository.findById(username).orElse(null);
 
         if (userActivity == null) {
-            throw new UserActivityNotFoundException(String.format("No user activity found for {%s}", username));
+            throw new UserActivityNotFoundException("No user activity found for: " + username);
         }
 
         return userActivity;

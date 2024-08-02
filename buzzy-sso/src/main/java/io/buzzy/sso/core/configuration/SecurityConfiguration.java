@@ -26,7 +26,7 @@ public class SecurityConfiguration {
                                                           OpaqueTokenIntrospector tokenIntrospector) throws Exception {
         return http.cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests((authorize) -> authorize.requestMatchers("/static").permitAll()
+                .authorizeHttpRequests(authorizeRequests -> authorizeRequests.requestMatchers("/static").permitAll()
                         .requestMatchers("/v1/**").hasAuthority("write")
                         .anyRequest().authenticated())
                 .formLogin(AbstractHttpConfigurer::disable)

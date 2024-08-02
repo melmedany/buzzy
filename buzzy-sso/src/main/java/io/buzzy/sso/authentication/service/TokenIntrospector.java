@@ -12,9 +12,7 @@ import org.springframework.security.oauth2.server.resource.introspection.OAuth2I
 import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import static io.buzzy.common.security.Constants.CLAIMS_AUTHORITIES_KEY;
@@ -39,6 +37,8 @@ public class TokenIntrospector implements OpaqueTokenIntrospector {
         Collection<GrantedAuthority> authorities = AuthorityUtils.NO_AUTHORITIES;
         Map<String, Object> claims = authorization.getAccessToken().getClaims();
 
+        Map<String, Object> attributes = authorization.getAccessToken().getClaims();
+
         if (claims != null && claims.containsKey(CLAIMS_AUTHORITIES_KEY)) {
 
             Collection<String> claimsAuthorities = (Collection<String>) claims.get(CLAIMS_AUTHORITIES_KEY);
@@ -46,12 +46,8 @@ public class TokenIntrospector implements OpaqueTokenIntrospector {
             authorities = claimsAuthorities.stream()
                     .map(SimpleGrantedAuthority::new)
                     .collect(Collectors.toList());
-
-            Map<String, Object> attributes = authorization.getAccessToken().getClaims();
-
-            return new DefaultOAuth2AuthenticatedPrincipal(authorization.getPrincipalName(), attributes, authorities);
         }
 
-        throw new OAuth2IntrospectionException("Failed to introspect token.");
+        return new DefaultOAuth2AuthenticatedPrincipal(authorization.getPrincipalName(), attributes, authorities);
     }
 }
