@@ -8,4 +8,7 @@ public class ConversationNotFoundException extends RuntimeException {
         this.conversationId = conversationId;
     }
 
+    public String getConversationId() {
+        return conversationId;
+    }
 }

@@ -2,6 +2,7 @@ package io.buzzy.sso.core;
 
 import io.buzzy.common.service.ResourceBundleMessagesService;
 import io.buzzy.common.util.LocaleUtil;
+import io.buzzy.common.web.ApiExceptionHandler;
 import io.buzzy.common.web.model.APIResponse;
 import io.buzzy.common.web.model.ApiError;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,13 +16,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.List;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class GlobalExceptionHandler extends ApiExceptionHandler {
     private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    private final ResourceBundleMessagesService messageSource;
-
     public GlobalExceptionHandler(ResourceBundleMessagesService messageSource) {
-        this.messageSource = messageSource;
+        super(messageSource);
     }
 
     @ExceptionHandler(Exception.class)

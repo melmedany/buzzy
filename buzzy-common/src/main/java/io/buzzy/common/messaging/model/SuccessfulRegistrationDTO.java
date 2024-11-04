@@ -4,17 +4,17 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SuccessfulRegistrationDTO implements MessageDTO {
-    private String userId;
+    private String ssoId;
     private String username;
     private String firstname;
     private String lastname;
 
-    public String getUserId() {
-        return userId;
+    public String getSsoId() {
+        return ssoId;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setSsoId(String ssoId) {
+        this.ssoId = ssoId;
     }
 
     public String getUsername() {

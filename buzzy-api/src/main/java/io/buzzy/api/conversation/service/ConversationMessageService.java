@@ -5,6 +5,7 @@ import io.buzzy.api.conversation.controller.model.PostMessageRequest;
 import io.buzzy.api.conversation.mapper.ConversationMessageMapper;
 import io.buzzy.api.conversation.messaging.ConversationMessageUpdateProducer;
 import io.buzzy.api.conversation.model.ConversationMessageState;
+import io.buzzy.api.conversation.model.ConversationMessageType;
 import io.buzzy.api.conversation.repository.ConversationMessageRepository;
 import io.buzzy.api.conversation.repository.ConversationRepository;
 import io.buzzy.api.conversation.repository.entity.Conversation;
@@ -47,18 +48,18 @@ public class ConversationMessageService {
 
     public void postMessage(String username, String conversationId, PostMessageRequest postMessage) {
         Conversation conversation = conversationRepository.findById(UUID.fromString(conversationId))
-                .orElseThrow(() -> new ConversationNotFoundException(conversationId, "Conversation not found!"));
+                .orElseThrow(() -> new ConversationNotFoundException(conversationId, "global.conversations.not.found"));
 
         verifyUserInConversation(username, conversation);
 
-        UserProfile userProfile = userProfileService.findByUserProfileUsername(username);
+        UserProfile sender = userProfileService.findUserProfileByUsername(username);
 
         // TODO // sanitize message
 
         ConversationMessage conversationMessage = new ConversationMessage();
-        conversationMessage.setType(postMessage.getType());
+        conversationMessage.setType(ConversationMessageType.text);
         conversationMessage.setState(ConversationMessageState.sending);
-        conversationMessage.setSender(userProfile);
+        conversationMessage.setSender(sender);
         conversationMessage.setText(postMessage.getMessage());
 
         conversationMessage.setConversation(conversation);
@@ -72,19 +73,18 @@ public class ConversationMessageService {
     }
 
     public ConversationMessageDTO getConversationMessage(String messageId, String conversationId, String username) {
-        ConversationMessage conversationMessage = conversationMessageRepository
-                .findByIdAndConversationId(UUID.fromString(messageId),
+        ConversationMessage conversationMessage = conversationMessageRepository.findByIdAndConversationId(UUID.fromString(messageId),
                         UUID.fromString(conversationId)).orElse(null);
 
         if (conversationMessage == null) {
-            throw new ConversationMessageNotFoundException(messageId, conversationId, "Conversation Message not found!");
+            throw new ConversationMessageNotFoundException(messageId, conversationId, "global.conversation.message.not.found");
         }
 
         boolean userInConversationParticipants = conversationMessage.getConversation().getParticipants().stream()
                 .anyMatch(participant -> username.equalsIgnoreCase(participant.getUsername()));
 
         if (!userInConversationParticipants) {
-            throw new ConversationNotFoundException(conversationId, "Conversation not found!");
+            throw new ConversationNotFoundException(conversationId, "global.conversations.not.found");
         }
 
         return conversationMessageMapper.toDTO(conversationMessage);
@@ -140,21 +140,10 @@ public class ConversationMessageService {
         Conversation conversation = conversationRepository.findById(UUID.fromString(conversationId)).orElse(null);
 
         if (conversation == null) {
-            throw new ConversationNotFoundException(conversationId, "Conversation not found!");
+            throw new ConversationNotFoundException(conversationId, "global.conversations.not.found");
         }
 
         return conversation;
-    }
-
-    private ConversationMessage getConversationMessage(String conversationId, String messageId) {
-        ConversationMessage conversationMessage = conversationMessageRepository.findByIdAndConversationId(UUID.fromString(messageId),
-                UUID.fromString(conversationId)).orElse(null);
-
-        if (conversationMessage == null) {
-            throw new ConversationMessageNotFoundException(messageId, conversationId, "Conversation Message not found!");
-        }
-
-        return conversationMessage;
     }
 
     private void verifyUserInConversation(String username, Conversation conversation) {

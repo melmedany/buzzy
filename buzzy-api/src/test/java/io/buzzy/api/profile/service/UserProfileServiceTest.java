@@ -1,5 +1,6 @@
 package io.buzzy.api.profile.service;
 
+import io.buzzy.api.profile.controller.model.SearchProfileDTO;
 import io.buzzy.api.profile.controller.model.SettingsDTO;
 import io.buzzy.api.profile.controller.model.UserProfileDTO;
 import io.buzzy.api.profile.mapper.SettingsMapper;
@@ -27,7 +28,7 @@ import static org.mockito.Mockito.*;
 class UserProfileServiceTest {
 
     @Mock
-    private NewConnectionAddedProducer newConnectionAddedProducer;
+    private NewConnectionProducer newConnectionProducer;
 
     @Mock
     private UserProfileRepository userProfileRepository;
@@ -44,6 +45,7 @@ class UserProfileServiceTest {
     private SuccessfulRegistrationDTO successfulRegistrationDTO;
     private UserProfile userProfile;
     private UserProfileDTO userProfileDTO;
+    private SearchProfileDTO searchProfileDTO;
     private SettingsDTO settingsDTO;
 
     @BeforeEach
@@ -51,6 +53,7 @@ class UserProfileServiceTest {
         successfulRegistrationDTO = new SuccessfulRegistrationDTO();
         userProfile = new UserProfile();
         userProfileDTO = new UserProfileDTO();
+        searchProfileDTO = new SearchProfileDTO();
         settingsDTO = new SettingsDTO();
 
         userProfile.setId(UUID.randomUUID());
@@ -76,19 +79,19 @@ class UserProfileServiceTest {
     @Test
     void findById_existingId() {
         UUID id = userProfile.getId();
-        when(userProfileRepository.findByUserId(id)).thenReturn(Optional.of(userProfile));
+        when(userProfileRepository.findById(id)).thenReturn(Optional.of(userProfile));
         when(userProfileMapper.toUserProfileDTO(userProfile)).thenReturn(userProfileDTO);
 
         UserProfileDTO result = userProfileService.findById(id);
 
         assertNotNull(result);
-        verify(userProfileRepository, times(1)).findByUserId(id);
+        verify(userProfileRepository, times(1)).findById(id);
     }
 
     @Test
     void findById_nonExistingId() {
         UUID id = UUID.randomUUID();
-        when(userProfileRepository.findByUserId(id)).thenReturn(Optional.empty());
+        when(userProfileRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(UsernameNotFoundException.class, () -> userProfileService.findById(id));
     }
@@ -118,15 +121,15 @@ class UserProfileServiceTest {
         String keyword = "test";
         String loggedInUsername = "loggedUser";
         List<UserProfile> userProfiles = Collections.singletonList(userProfile);
-        List<UserProfileDTO> userProfileDTOs = Collections.singletonList(userProfileDTO);
+        List<SearchProfileDTO> searchProfileDTOs = Collections.singletonList(searchProfileDTO);
 
         when(userProfileRepository.searchUserProfiles(keyword, loggedInUsername)).thenReturn(userProfiles);
-        when(userProfileMapper.toUserProfileDTOList(userProfiles)).thenReturn(userProfileDTOs);
+        when(userProfileMapper.toSearchProfileDTOList(userProfiles)).thenReturn(searchProfileDTOs);
 
-        List<UserProfileDTO> result = userProfileService.searchUserProfiles(keyword, loggedInUsername);
+        List<SearchProfileDTO> result = userProfileService.searchUserProfiles(keyword, loggedInUsername);
 
         assertEquals(1, result.size());
-        assertEquals(userProfileDTO, result.get(0));
+        assertEquals(searchProfileDTO, result.get(0));
         verify(userProfileRepository, times(1)).searchUserProfiles(keyword, loggedInUsername);
     }
 
@@ -136,9 +139,9 @@ class UserProfileServiceTest {
         String loggedInUsername = "loggedUser";
 
         when(userProfileRepository.searchUserProfiles(keyword, loggedInUsername)).thenReturn(Collections.emptyList());
-        when(userProfileMapper.toUserProfileDTOList(Collections.emptyList())).thenReturn(Collections.emptyList());
+        when(userProfileMapper.toSearchProfileDTOList(Collections.emptyList())).thenReturn(Collections.emptyList());
 
-        List<UserProfileDTO> result = userProfileService.searchUserProfiles(keyword, loggedInUsername);
+        List<SearchProfileDTO> result = userProfileService.searchUserProfiles(keyword, loggedInUsername);
 
         assertTrue(result.isEmpty());
         verify(userProfileRepository, times(1)).searchUserProfiles(keyword, loggedInUsername);
@@ -149,9 +152,9 @@ class UserProfileServiceTest {
         String loggedInUsername = "loggedUser";
 
         when(userProfileRepository.searchUserProfiles(null, loggedInUsername)).thenReturn(Collections.emptyList());
-        when(userProfileMapper.toUserProfileDTOList(Collections.emptyList())).thenReturn(Collections.emptyList());
+        when(userProfileMapper.toSearchProfileDTOList(Collections.emptyList())).thenReturn(Collections.emptyList());
 
-        List<UserProfileDTO> result = userProfileService.searchUserProfiles(null, loggedInUsername);
+        List<SearchProfileDTO> result = userProfileService.searchUserProfiles(null, loggedInUsername);
 
         assertTrue(result.isEmpty());
         verify(userProfileRepository, times(1)).searchUserProfiles(null, loggedInUsername);
@@ -178,7 +181,7 @@ class UserProfileServiceTest {
         verify(userProfileRepository, times(1)).findByUsername(username);
         verify(userProfileRepository, times(1)).findById(UUID.fromString(connectionId));
         verify(userProfileRepository, times(1)).save(userProfile);
-        verify(newConnectionAddedProducer, times(1)).send(any());
+        verify(newConnectionProducer, times(1)).send(any());
     }
 
     @Test
@@ -193,7 +196,7 @@ class UserProfileServiceTest {
         verify(userProfileRepository, times(1)).findByUsername(username);
         verify(userProfileRepository, never()).findById(any());
         verify(userProfileRepository, never()).save(any());
-        verify(newConnectionAddedProducer, never()).send(any());
+        verify(newConnectionProducer, never()).send(any());
     }
 
     @Test
@@ -209,7 +212,7 @@ class UserProfileServiceTest {
         verify(userProfileRepository, times(1)).findByUsername(username);
         verify(userProfileRepository, times(1)).findById(UUID.fromString(connectionId));
         verify(userProfileRepository, never()).save(any());
-        verify(newConnectionAddedProducer, never()).send(any());
+        verify(newConnectionProducer, never()).send(any());
     }
 
     @Test
@@ -230,7 +233,7 @@ class UserProfileServiceTest {
         verify(userProfileRepository, times(1)).findByUsername(username);
         verify(userProfileRepository, times(1)).findById(UUID.fromString(connectionId));
         verify(userProfileRepository, never()).save(any());
-        verify(newConnectionAddedProducer, never()).send(any());
+        verify(newConnectionProducer, never()).send(any());
     }
 
     @Test
@@ -239,14 +242,12 @@ class UserProfileServiceTest {
         String connectionId = userProfile.getId().toString();
 
         when(userProfileRepository.findByUsername(username)).thenReturn(Optional.of(userProfile));
-        when(userProfileRepository.findById(UUID.fromString(connectionId))).thenReturn(Optional.of(userProfile));
 
         assertThrows(IllegalArgumentException.class, () -> userProfileService.addConnection(username, connectionId));
 
         verify(userProfileRepository, times(1)).findByUsername(username);
-        verify(userProfileRepository, times(1)).findById(UUID.fromString(connectionId));
         verify(userProfileRepository, never()).save(any());
-        verify(newConnectionAddedProducer, never()).send(any());
+        verify(newConnectionProducer, never()).send(any());
     }
 
     @Test

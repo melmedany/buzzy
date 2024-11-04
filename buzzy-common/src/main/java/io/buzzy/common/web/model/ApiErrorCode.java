@@ -8,5 +8,8 @@ public enum ApiErrorCode {
     UsernameAlreadyExists,
     UsernameOrPasswordIncorrect,
     ProfileNotFound,
+    ConnectionAlreadyExists,
+    ConversationNotFound,
+    ConversationMessageNotFound,
     Unknown
 }

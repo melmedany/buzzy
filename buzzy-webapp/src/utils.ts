@@ -273,6 +273,9 @@ export const ApiErrorMessageKeys: { [key in keyof typeof ApiErrorCode]: string }
   UsernameAlreadyExists: "errors.username.already.exists",
   UsernameNotFound: "errors.invalid.credentials",
   UsernameOrPasswordIncorrect: "errors.invalid.credentials",
+  ConnectionAlreadyExists: "errors.connection.already.exists",
+  ConversationNotFound: "errors.conversation.not.found",
+  ConversationMessageNotFound: "errors.conversation.message.not.found",
   Unknown: "errors.global.error"
 }
 

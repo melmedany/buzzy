@@ -190,6 +190,9 @@ export enum ApiErrorCode {
     UsernameAlreadyExists,
     UsernameNotFound,
     UsernameOrPasswordIncorrect,
+    ConnectionAlreadyExists,
+    ConversationNotFound,
+    ConversationMessageNotFound,
     Unknown
 }
 

@@ -3,7 +3,6 @@ package io.buzzy.api.conversation.controller.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.buzzy.api.conversation.model.ConversationMessageState;
-import io.buzzy.api.profile.controller.model.UserProfileDTO;
 
 import java.time.OffsetDateTime;
 
@@ -14,7 +13,7 @@ public class ConversationMessageDTO {
     @JsonProperty("content")
     private String text;
     private OffsetDateTime date;
-    private UserProfileDTO sender;
+    private SenderDTO sender;
     private ConversationMessageState state;
 
     public String getId() {
@@ -49,11 +48,11 @@ public class ConversationMessageDTO {
         this.date = date;
     }
 
-    public UserProfileDTO getSender() {
+    public SenderDTO getSender() {
         return sender;
     }
 
-    public void setSender(UserProfileDTO sender) {
+    public void setSender(SenderDTO sender) {
         this.sender = sender;
     }
 

@@ -10,4 +10,11 @@ public class ConversationMessageNotFoundException extends RuntimeException {
         this.messageId = messageId;
     }
 
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public String getConversationId() {
+        return conversationId;
+    }
 }

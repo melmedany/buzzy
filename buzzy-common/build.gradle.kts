@@ -1,6 +1,7 @@
 
 dependencies {
     compileOnly("jakarta.servlet:jakarta.servlet-api:+")
+    compileOnly("jakarta.validation:jakarta.validation-api:+")
     compileOnly("com.fasterxml.jackson.core:jackson-databind:+")
     compileOnly("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:+")
     compileOnly("org.apache.commons:commons-lang3:+")

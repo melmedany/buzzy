@@ -1,5 +1,6 @@
 package io.buzzy.api.profile.controller;
 
+import io.buzzy.api.profile.controller.model.SearchProfileDTO;
 import io.buzzy.api.profile.controller.model.SettingsDTO;
 import io.buzzy.api.profile.controller.model.UserProfileDTO;
 import io.buzzy.api.profile.service.UserProfileService;
@@ -51,7 +52,7 @@ class UserProfileControllerTest {
 
     @Test
     void testSearchUserProfiles() throws Exception {
-        List<UserProfileDTO> mockProfiles = new ArrayList<>();
+        List<SearchProfileDTO> mockProfiles = new ArrayList<>();
         when(userProfileService.searchUserProfiles("keyword", "user1")).thenReturn(mockProfiles);
 
         mockMvc.perform(get("/v1/users/profiles/search")
@@ -64,7 +65,7 @@ class UserProfileControllerTest {
 
     @Test
     void testAddConnection() throws Exception {
-        mockMvc.perform(put("/v1/users/profiles/connections/123" )
+        mockMvc.perform(put("/v1/users/profiles/connections/add/123" )
                         .with(user("testUser").authorities(new SimpleGrantedAuthority("USER")))
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON))

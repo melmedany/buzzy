@@ -1,12 +1,22 @@
 package io.buzzy.api.profile.service.exception;
 
-public class ConnectionAlreadyExistException extends RuntimeException {
-    private final String username;
-    private final String connection;
+import java.util.UUID;
 
-    public ConnectionAlreadyExistException(String username, String connection, String errorMessage) {
+public class ConnectionAlreadyExistException extends RuntimeException {
+    private final UUID username;
+    private final UUID connection;
+
+    public ConnectionAlreadyExistException(UUID username, UUID connection, String errorMessage) {
         super(errorMessage);
         this.username = username;
         this.connection = connection;
+    }
+
+    public UUID getUsername() {
+        return username;
+    }
+
+    public UUID getConnection() {
+        return connection;
     }
 }

@@ -16,7 +16,7 @@ public class UserProfile {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     @Column(unique = true)
-    private UUID userId;
+    private UUID ssoId;
     @Column(unique = true)
     private String username;
     private String firstname;
@@ -46,12 +46,12 @@ public class UserProfile {
         this.id = id;
     }
 
-    public UUID getUserId() {
-        return userId;
+    public UUID getSsoId() {
+        return ssoId;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
+    public void setSsoId(UUID ssoId) {
+        this.ssoId = ssoId;
     }
 
     public String getUsername() {
