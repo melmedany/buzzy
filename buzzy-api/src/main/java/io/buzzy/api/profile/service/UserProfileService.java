@@ -1,5 +1,6 @@
 package io.buzzy.api.profile.service;
 
+import io.buzzy.api.profile.controller.model.SearchProfileDTO;
 import io.buzzy.api.profile.controller.model.SettingsDTO;
 import io.buzzy.api.profile.controller.model.UserProfileDTO;
 import io.buzzy.api.profile.mapper.SettingsMapper;
@@ -23,16 +24,16 @@ import java.util.UUID;
 public class UserProfileService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserProfileService.class);
 
-    private final NewConnectionAddedProducer newConnectionAddedProducer;
+    private final NewConnectionProducer newConnectionProducer;
     private final UserProfileRepository userProfileRepository;
     private final UserProfileMapper userProfileMapper;
     private final SettingsMapper settingsMapper;
 
-    public UserProfileService(NewConnectionAddedProducer newConnectionAddedProducer,
+    public UserProfileService(NewConnectionProducer newConnectionProducer,
                               UserProfileRepository userProfileRepository,
                               UserProfileMapper userProfileMapper,
                               SettingsMapper settingsMapper) {
-        this.newConnectionAddedProducer = newConnectionAddedProducer;
+        this.newConnectionProducer = newConnectionProducer;
         this.userProfileRepository = userProfileRepository;
         this.userProfileMapper = userProfileMapper;
         this.settingsMapper = settingsMapper;
@@ -49,71 +50,47 @@ public class UserProfileService {
     }
 
     public UserProfileDTO findById(UUID id) {
-        UserProfile userProfile = userProfileRepository.findByUserId(id).orElse(null);
-
-        if (userProfile == null) {
-            throw new UsernameNotFoundException("global.user.not.found");
-        }
-
-        return userProfileMapper.toUserProfileDTO(userProfile);
+        return findByIdInternal(id);
     }
 
     public UserProfile findById(String id) {
-        UserProfile userProfile = userProfileRepository.findById(UUID.fromString(id)).orElse(null);
-
-        if (userProfile == null) {
-            throw new UsernameNotFoundException("global.user.not.found");
-        }
-
-        return userProfile;
+        return findUserProfileByIdInternal(id);
     }
 
     public UserProfileDTO findByUsername(String username) {
-        UserProfile userProfile = userProfileRepository.findByUsername(username).orElse(null);
-
-        if (userProfile == null) {
-            throw new UsernameNotFoundException("global.user.not.found");
-        }
-
-        return userProfileMapper.toUserProfileDTO(userProfile);
+        return findByUsernameInternal(username);
     }
 
-    public UserProfile findByUserProfileUsername(String username) {
-        UserProfile userProfile = userProfileRepository.findByUsername(username).orElse(null);
-
-        if (userProfile == null) {
-            throw new UsernameNotFoundException("global.user.not.found");
-        }
-
-        return userProfile;
+    public UserProfile findUserProfileByUsername(String username) {
+        return findUserProfileByUsernameInternal(username);
     }
 
-    public List<UserProfileDTO> searchUserProfiles(String keyword, String loggedInUsername) {
-        return userProfileMapper.toUserProfileDTOList(userProfileRepository.searchUserProfiles(keyword, loggedInUsername));
+    public void updateUserProfile(String username, UserProfileDTO updatedProfileDTO) {
+        UserProfile userProfile = findUserProfileByUsernameInternal(username);
+
+        userProfileMapper.update(userProfile, updatedProfileDTO);
+
+        userProfileRepository.save(userProfile);
     }
 
-    public void addConnection(String username, String connectionId) {
-        UserProfile userProfile = userProfileRepository.findByUsername(username).orElse(null);
+    public List<SearchProfileDTO> searchUserProfiles(String keyword, String loggedInUsername) {
+        return userProfileMapper.toSearchProfileDTOList(userProfileRepository.searchUserProfiles(keyword, loggedInUsername));
+    }
 
-        if (userProfile == null) {
-            throw new UsernameNotFoundException("global.user.not.found");
-        }
+    public void addConnection(String username, String idToConnect) {
+        UserProfile userProfile = findUserProfileByUsernameInternal(username);
 
-        UserProfile connection = userProfileRepository.findById(UUID.fromString(connectionId)).orElse(null);
-
-        if (connection == null) {
-            throw new UsernameNotFoundException("global.user.not.found");
-        }
-
-        if (userProfile.getId() == connection.getId()) {
+        if (userProfile.getId().toString().equalsIgnoreCase(idToConnect)) {
             throw new IllegalArgumentException("global.user.cannot.self.connect");
         }
 
+        UserProfile connection = findUserProfileByIdInternal(idToConnect);
+
         boolean connectionExists = userProfile.getConnections().stream()
-                .anyMatch(profile -> profile.getId().toString().equals(connectionId));
+                .anyMatch(profile -> profile.getId().toString().equalsIgnoreCase(idToConnect));
 
         if (connectionExists) {
-            throw new ConnectionAlreadyExistException(username, connection.getUsername(), "global.user.already.connected");
+            throw new ConnectionAlreadyExistException(userProfile.getId(), connection.getId(), "global.user.already.connected");
         }
 
         userProfile.getConnections().add(connection);
@@ -121,28 +98,50 @@ public class UserProfileService {
 
         userProfileRepository.save(userProfile);
 
-        newConnectionAddedProducer.send(userProfileMapper.toNewConnectionDTO(userProfile.getId(), connection.getId()));
+        newConnectionProducer.send(userProfileMapper.toNewConnectionDTO(userProfile.getId(), connection.getId()));
     }
 
     public void updateSettings(String username, SettingsDTO settingsDTO) {
-        UserProfile userProfile = userProfileRepository.findByUsername(username).orElse(null);
-
-        if (userProfile == null) {
-            throw new UsernameNotFoundException("global.user.not.found");
-        }
+        UserProfile userProfile = findUserProfileByUsernameInternal(username);
 
         userProfile.setSettings(settingsMapper.toEntity(settingsDTO));
         userProfileRepository.save(userProfile);
     }
 
     public void userStatusUpdate(UserStatusUpdateDTO userStatusUpdateDTO) {
-        UserProfile userProfile = userProfileRepository.findByUsername(userStatusUpdateDTO.getUsername()).orElse(null);
+        UserProfile userProfile = findUserProfileByUsernameInternal(userStatusUpdateDTO.getUsername());
+
+        userProfile.setLastSeen(userStatusUpdateDTO.getLastSeen());
+        userProfileRepository.save(userProfile);
+    }
+
+    private UserProfileDTO findByUsernameInternal(String username) {
+        UserProfile userProfile = findUserProfileByUsernameInternal(username);
+        return userProfileMapper.toUserProfileDTO(userProfile);
+    }
+
+    private UserProfile findUserProfileByUsernameInternal(String username) {
+        UserProfile userProfile = userProfileRepository.findByUsername(username).orElse(null);
 
         if (userProfile == null) {
             throw new UsernameNotFoundException("global.user.not.found");
         }
 
-        userProfile.setLastSeen(userStatusUpdateDTO.getLastSeen());
-        userProfileRepository.save(userProfile);
+        return userProfile;
+    }
+
+    private UserProfileDTO findByIdInternal(UUID id) {
+        UserProfile userProfile = findUserProfileByIdInternal(id.toString());
+        return userProfileMapper.toUserProfileDTO(userProfile);
+    }
+
+    private UserProfile findUserProfileByIdInternal(String id) {
+        UserProfile userProfile = userProfileRepository.findById(UUID.fromString(id)).orElse(null);
+
+        if (userProfile == null) {
+            throw new UsernameNotFoundException("global.user.not.found");
+        }
+
+        return userProfile;
     }
 }

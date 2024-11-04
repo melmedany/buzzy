@@ -1,6 +1,7 @@
 package io.buzzy.api.profile.controller;
 
 
+import io.buzzy.api.profile.controller.model.SearchProfileDTO;
 import io.buzzy.api.profile.controller.model.SettingsDTO;
 import io.buzzy.api.profile.controller.model.UserProfileDTO;
 import io.buzzy.api.profile.service.UserProfileService;
@@ -38,21 +39,31 @@ public class UserProfileController implements UserProfileAPI {
     }
 
     @Override
-    public ResponseEntity<APIResponse<List<UserProfileDTO>>> searchUserProfiles(String keyword) {
+    public ResponseEntity<APIResponse<Void>> updateUserProfile(UserProfileDTO updatedProfile) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String principalName = authentication.getName();
 
-        List<UserProfileDTO> profiles = userProfileService.searchUserProfiles(keyword, principalName);
+        userProfileService.updateUserProfile(principalName, updatedProfile);
+
+        return new ResponseEntity<>(APIResponse.emptyResponse(), HttpStatus.NO_CONTENT);
+    }
+
+    @Override
+    public ResponseEntity<APIResponse<List<SearchProfileDTO>>> searchUserProfiles(String keyword) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String principalName = authentication.getName();
+
+        List<SearchProfileDTO> profiles = userProfileService.searchUserProfiles(keyword, principalName);
 
         return new ResponseEntity<>(new APIResponse<>(profiles, null), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<APIResponse<Void>> addConnection(String userProfileId) {
+    public ResponseEntity<APIResponse<Void>> addConnection(String idToConnect) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String principalName = authentication.getName();
 
-        userProfileService.addConnection(principalName, userProfileId);
+        userProfileService.addConnection(principalName, idToConnect);
 
         return new ResponseEntity<>(APIResponse.emptyResponse(), HttpStatus.CREATED);
     }

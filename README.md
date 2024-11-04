@@ -41,7 +41,7 @@ Each module of this monorepo plays a crucial role in the overall functionality o
 - buzzy-api: `8088`, db: `15432`
 - buzzy-websockets-server: `8085` 
 - buzzy-webapp: `3000`
-- kafka: `9092`, zookeeper: `2181` 
+- kafka: `9092`
 - redis: `6379`
 
 ### Build

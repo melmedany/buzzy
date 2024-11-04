@@ -45,43 +45,39 @@ public class ConversationService {
         Conversation conversation = conversationRepository.findById(UUID.fromString(id)).orElse(null);
 
         if (conversation == null) {
-            throw new ConversationNotFoundException(id, "Conversation not found!");
+            throw new ConversationNotFoundException(id, "global.conversations.not.found");
         }
 
         boolean userInConversationParticipants = conversation.getParticipants().stream()
                 .anyMatch(participant -> username.equalsIgnoreCase(participant.getUsername()));
 
         if (!userInConversationParticipants) {
-            throw new ConversationNotFoundException(id, "Conversation not found!");
+            throw new ConversationNotFoundException(id, "global.conversations.not.found");
         }
 
         return conversationMapper.toDTO(conversation);
     }
 
     public void createConversation(UserProfile newProfile) {
-        ConversationConfiguration configuration = new ConversationConfiguration();
-
         Conversation firstConversation = new Conversation();
         firstConversation.setType(ConversationType.direct_message);
-        firstConversation.setConfiguration(configuration);
+        firstConversation.setConfiguration(new ConversationConfiguration());
 
         firstConversation.setParticipants(List.of(newProfile));
 
-        configuration.setConversation(firstConversation);
+        firstConversation.getConfiguration().setConversation(firstConversation);
 
         conversationRepository.save(firstConversation);
     }
 
     public void createConversation(UserProfile user, UserProfile connection) {
-        ConversationConfiguration configuration = new ConversationConfiguration();
-
         Conversation newConversation = new Conversation();
         newConversation.setType(ConversationType.direct_message);
-        newConversation.setConfiguration(configuration);
+        newConversation.setConfiguration( new ConversationConfiguration());
 
         newConversation.setParticipants(List.of(user, connection));
 
-        configuration.setConversation(newConversation);
+        newConversation.getConfiguration().setConversation(newConversation);
 
         conversationRepository.save(newConversation);
     }

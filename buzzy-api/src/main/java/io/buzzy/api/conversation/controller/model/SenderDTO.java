@@ -1,28 +1,27 @@
-package io.buzzy.sso.registration.controller.model;
+package io.buzzy.api.conversation.controller.model;
+
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserDTO {
-    private String userId;
-    private String username;
+public class SenderDTO {
+    private UUID id;
     private String firstname;
     private String lastname;
+    private OffsetDateTime lastSeen;
 
-    public String getUserId() {
-        return userId;
+    public SenderDTO() {
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public UUID getId() {
+        return id;
     }
 
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
+    public void setId(UUID id) {
+        this.id = id;
     }
 
     public String getFirstname() {
@@ -40,4 +39,13 @@ public class UserDTO {
     public void setLastname(String lastname) {
         this.lastname = lastname;
     }
+
+    public OffsetDateTime getLastSeen() {
+        return lastSeen;
+    }
+
+    public void setLastSeen(OffsetDateTime lastSeen) {
+        this.lastSeen = lastSeen;
+    }
 }
+

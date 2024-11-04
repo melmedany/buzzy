@@ -2,7 +2,6 @@ package io.buzzy.sso.registration.controller;
 
 import io.buzzy.common.web.model.APIResponse;
 import io.buzzy.sso.registration.controller.model.SignupRequest;
-import io.buzzy.sso.registration.controller.model.UserDTO;
 import io.buzzy.sso.registration.service.RegistrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

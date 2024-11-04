@@ -2,7 +2,7 @@ SET TIME ZONE 'UTC';
 
 CREATE TABLE IF NOT EXISTS users_profiles (
       id             UUID                                             PRIMARY KEY,
-      user_id        UUID                                             UNIQUE NOT NULL,
+      sso_id        UUID                                             UNIQUE NOT NULL,
       username       VARCHAR(50)                                      UNIQUE NOT NULL,
       firstname      VARCHAR(100),
       lastname       VARCHAR(100),

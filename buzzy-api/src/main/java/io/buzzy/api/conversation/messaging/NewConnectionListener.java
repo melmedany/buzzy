@@ -16,13 +16,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 
 @Service
-public class NewConnectionAddedListener {
-    private static final Logger LOGGER = LoggerFactory.getLogger(NewConnectionAddedListener.class);
+public class NewConnectionListener {
+    private static final Logger LOGGER = LoggerFactory.getLogger(NewConnectionListener.class);
 
     private final ConversationService conversationService;
     private final UserProfileService userProfileService;
 
-    public NewConnectionAddedListener(ConversationService conversationService, UserProfileService userProfileService) {
+    public NewConnectionListener(ConversationService conversationService, UserProfileService userProfileService) {
         this.conversationService = conversationService;
         this.userProfileService = userProfileService;
     }
@@ -43,8 +43,8 @@ public class NewConnectionAddedListener {
     }
 
     protected void process(NewConnectionDTO newConnectionDTO) {
-        LOGGER.debug("Processing new added connection: {}", JsonUtil.toJson(newConnectionDTO));
-        UserProfile user = userProfileService.findById(newConnectionDTO.getUserId());
+        LOGGER.debug("Processing new connection: {}", JsonUtil.toJson(newConnectionDTO));
+        UserProfile user = userProfileService.findById(newConnectionDTO.getRequesterId());
         UserProfile connection = userProfileService.findById(newConnectionDTO.getConnectionId());
         conversationService.createConversation(user, connection);
     }

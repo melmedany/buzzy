@@ -1,18 +1,18 @@
 package io.buzzy.api.profile.mapper;
 
+import io.buzzy.api.profile.controller.model.SearchProfileDTO;
 import io.buzzy.api.profile.controller.model.UserConnectionDTO;
 import io.buzzy.api.profile.controller.model.UserProfileDTO;
 import io.buzzy.api.profile.repository.entity.UserProfile;
 import io.buzzy.common.messaging.model.NewConnectionDTO;
 import io.buzzy.common.messaging.model.SuccessfulRegistrationDTO;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import org.mapstruct.*;
 
 import java.util.List;
 import java.util.UUID;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserProfileMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
@@ -25,17 +25,25 @@ public interface UserProfileMapper {
 
     UserProfileDTO toUserProfileDTO(UserProfile userProfile);
 
-    List<UserProfileDTO> toUserProfileDTOList(List<UserProfile> userProfile);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "lastSeen", ignore = true)
+    @Mapping(target = "created", ignore = true)
+    @Mapping(target = "updated", ignore = true)
+    @Mapping(target = "username", ignore = true)
+    void update(@MappingTarget UserProfile userProfile, UserProfileDTO userProfileDTO);
 
-    default NewConnectionDTO toNewConnectionDTO(UUID userId, UUID connectionId) {
+    List<SearchProfileDTO> toSearchProfileDTOList(List<UserProfile> userProfile);
+
+    default NewConnectionDTO toNewConnectionDTO(UUID requesterId, UUID connectionId) {
         NewConnectionDTO newConnectionDTO = new NewConnectionDTO();
         newConnectionDTO.setConnectionId(connectionId.toString());
-        newConnectionDTO.setUserId(userId.toString());
+        newConnectionDTO.setRequesterId(requesterId.toString());
         return newConnectionDTO;
     }
 
-    default UUID mapToUUID(String userId) {
-        return UUID.fromString(userId);
+    default UUID mapToUUID(String id) {
+        return UUID.fromString(id);
     }
 
     default UserConnectionDTO mapToUserConnectionDTO(UserProfile connection) {

@@ -1,9 +1,5 @@
 package io.buzzy.sso;
 
-import com.github.dockerjava.api.model.ExposedPort;
-import com.github.dockerjava.api.model.HostConfig;
-import com.github.dockerjava.api.model.PortBinding;
-import com.github.dockerjava.api.model.Ports;
 import com.redis.testcontainers.RedisContainer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -28,15 +24,10 @@ class BuzzySSOApplicationTests {
             .withDatabaseName("buzzy_db")
             .withUsername("postgres")
             .withEnv("POSTGRES_HOST_AUTH_METHOD", "trust")
-            .withExposedPorts(5432)
-            .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-                    new HostConfig().withPortBindings(new PortBinding(Ports.Binding.bindPort(5432), new ExposedPort(5432)))
-            ))
             .waitingFor(Wait.defaultWaitStrategy());
 
     @Container
     static RedisContainer redis = new RedisContainer(DockerImageName.parse("redis:6.2.6"))
-            .withExposedPorts(6379)
             .waitingFor(Wait.defaultWaitStrategy());
 
 

@@ -10,9 +10,12 @@ import java.util.UUID;
 
 @Repository
 public interface UserProfileRepository extends JpaRepository<UserProfile, UUID> {
-    Optional<UserProfile> findByUserId(UUID userId);
     Optional<UserProfile> findByUsername(String username);
 
-    @Query("SELECT u FROM UserProfile u WHERE LOWER(u.username) LIKE LOWER(CONCAT('%', :keyword, '%')) AND LOWER(u.username) <> LOWER(:username) AND u.username NOT IN (SELECT c.username FROM UserProfile currUser JOIN currUser.connections c WHERE LOWER(currUser.username) = LOWER(:username))")
-    List<UserProfile> searchUserProfiles(String keyword, String username);
+    @Query("SELECT u " +
+            "FROM UserProfile u " +
+            "WHERE (LOWER(u.firstname) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(u.lastname) LIKE LOWER(CONCAT('%', :keyword, '%')) ) " +
+            "AND LOWER(u.username) <> LOWER(:loggedInUsername) " +
+            "AND u.username NOT IN (SELECT c.username FROM UserProfile currUser JOIN currUser.connections c WHERE LOWER(currUser.username) = LOWER(:loggedInUsername))")
+    List<UserProfile> searchUserProfiles(String keyword, String loggedInUsername);
 }

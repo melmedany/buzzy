@@ -45,21 +45,21 @@ public class ConversationServiceTest {
     @Test
     public void testGetConversationsSummary_Success() {
         String username = "testuser";
-        UUID userId = UUID.randomUUID();
+        UUID id = UUID.randomUUID();
         List<Conversation> conversations = List.of(new Conversation());
         conversations.forEach(conversation -> conversation.setParticipants(new ArrayList<>()));
         List<ConversationDTO> conversationDTOs = List.of(new ConversationDTO());
         conversationDTOs.forEach(conversation -> conversation.setParticipants(new ArrayList<>()));
 
-        when(userProfileService.findByUsername(username)).thenReturn(new UserProfileDTO(userId, username));
-        when(conversationRepository.findConversationSummaryForUser(userId)).thenReturn(conversations);
+        when(userProfileService.findByUsername(username)).thenReturn(new UserProfileDTO(id, username));
+        when(conversationRepository.findConversationSummaryForUser(id)).thenReturn(conversations);
         when(conversationMapper.toDTOList(conversations)).thenReturn(conversationDTOs);
 
         List<ConversationDTO> result = conversationService.getConversationsSummary(username);
 
         assertEquals(conversationDTOs, result);
         verify(conversationMapper).toDTOList(conversations);
-        verify(conversationRepository).findConversationSummaryForUser(userId);
+        verify(conversationRepository).findConversationSummaryForUser(id);
     }
 
     @Test

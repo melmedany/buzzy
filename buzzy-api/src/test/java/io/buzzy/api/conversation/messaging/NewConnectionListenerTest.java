@@ -17,7 +17,7 @@ import java.util.UUID;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class NewConnectionAddedListenerTest {
+class NewConnectionListenerTest {
 
     @Mock
     private ConversationService conversationService;
@@ -32,7 +32,7 @@ class NewConnectionAddedListenerTest {
     private ConsumerRecord<String, NewConnectionDTO> message;
 
     @InjectMocks
-    private NewConnectionAddedListener newConnectionAddedListener;
+    private NewConnectionListener newConnectionListener;
 
     @Test
     public void testNewConnection_Success() {
@@ -47,9 +47,9 @@ class NewConnectionAddedListenerTest {
         when(userProfileService.findById(userProfile.getId().toString())).thenReturn(userProfile);
         when(userProfileService.findById(connectionProfile.getId().toString())).thenReturn(connectionProfile);
 
-        newConnectionAddedListener.newConnection(message, acknowledgment);
+        newConnectionListener.newConnection(message, acknowledgment);
 
-        verify(userProfileService, times(1)).findById(newConnectionDTO.getUserId());
+        verify(userProfileService, times(1)).findById(newConnectionDTO.getRequesterId());
         verify(userProfileService, times(1)).findById(newConnectionDTO.getConnectionId());
         verify(conversationService, times(1)).createConversation(userProfile, connectionProfile);
         verify(acknowledgment, times(1)).acknowledge();
